@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
+// import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -15,24 +16,26 @@ class _HomePageState extends State<HomePage> {
 
   int _activeStepIndex = 0;
 
-  String dropdownValue = 'Business Type';
-
+  //Landlord
   TextEditingController fullName = TextEditingController();
-  TextEditingController phoneNumber = TextEditingController();
-  TextEditingController businessAddress = TextEditingController();
-  TextEditingController contactAddress = TextEditingController();
-  TextEditingController email = TextEditingController();
-  // TextEditingController businessName = TextEditingController();
-  TextEditingController kadIRSId = TextEditingController();
-  TextEditingController rcNo = TextEditingController();
-
-  TextEditingController ownerFullName = TextEditingController();
-  TextEditingController ownerPhoneNumber = TextEditingController();
-  TextEditingController ownerAddress = TextEditingController();
-
-  TextEditingController rentAmount = TextEditingController();
+  TextEditingController regName = TextEditingController();
+  TextEditingController nationality = TextEditingController();
+  TextEditingController resAddress = TextEditingController();
+  TextEditingController phone = TextEditingController();
+  TextEditingController busName = TextEditingController();
+  TextEditingController busAddress = TextEditingController();
   TextEditingController dueDate = TextEditingController();
-  TextEditingController doc = TextEditingController();
+  TextEditingController busRegNo = TextEditingController();
+  TextEditingController tin = TextEditingController();
+  TextEditingController kadIRSId = TextEditingController();
+
+  //Agent
+  TextEditingController agName = TextEditingController();
+  TextEditingController agAddress = TextEditingController();
+  TextEditingController agPhone = TextEditingController();
+
+  String rentType = 'Select Type of Rent';
+  String dropdownValue = 'Business Type';
 
   late bool error, sending, success;
   late String msg;
@@ -51,18 +54,21 @@ class _HomePageState extends State<HomePage> {
   Future<void> sendData() async {
     var res = await http.post(Uri.parse(phpurl), body: {
       "fullname": fullName.text,
-      "phonenumber": phoneNumber.text,
-      "baddress": businessAddress.text,
-      "caddress": contactAddress.text,
-      "email": email.text,
-      "kadirsid": kadIRSId.text,
-      "rcno": rcNo.text,
-      "ofullname": ownerFullName.text,
-      "ophone": ownerPhoneNumber.text,
-      "oaddress": ownerAddress.text,
-      "rentamount": rentAmount.text,
+      "regname": regName.text,
+      "nationality": nationality.text,
+      "resaddress": resAddress.text,
+      "phone": phone.text,
+      "Businesstype": dropdownValue,
+      "busname": busName.text,
+      "busaddress": busAddress.text,
       "duedate": dueDate.text,
-      "btype": dropdownValue,
+      "busregno": busRegNo.text,
+      "tin": tin.text,
+      "kadirsid": kadIRSId.text,
+      "renttype": rentType,
+      "agname": agName.text,
+      "agaddress": agAddress.text,
+      "agphone": agPhone.text
     }); //sending post request with header data
 
     if (res.statusCode == 200) {
@@ -77,16 +83,7 @@ class _HomePageState extends State<HomePage> {
         });
       } else {
         fullName.text = "";
-        phoneNumber.text = "";
-        businessAddress.text = "";
-        contactAddress.text = "";
-        email.text = "";
-        kadIRSId.text = "";
-        rcNo.text = "";
-        ownerFullName.text = "";
-        ownerPhoneNumber.text = "";
-        ownerAddress.text = "";
-        rentAmount.text = "";
+        phone.text = "";
         dueDate.text = "";
         dropdownValue = 'Business Type';
 
@@ -112,7 +109,7 @@ class _HomePageState extends State<HomePage> {
         Step(
           state: _activeStepIndex <= 0 ? StepState.editing : StepState.complete,
           isActive: _activeStepIndex >= 0,
-          title: const Text('Tenant'),
+          title: const Text('Landlord'),
           content: Column(
             children: [_form()],
           ),
@@ -120,93 +117,61 @@ class _HomePageState extends State<HomePage> {
         Step(
           state: _activeStepIndex <= 1 ? StepState.editing : StepState.complete,
           isActive: _activeStepIndex >= 1,
-          title: const Text('Owner'),
-          content: (dropdownValue == "Individual")
-              ? textField(rentAmount, "Test Amount", "")
-              : textField(rentAmount, "Rent Amount", ""),
-
-          // Column(
-          //   children: [
-          //     textField(
-          //         ownerFullName, "Full name", "Enter owner's full name"),
-          //     const SizedBox(
-          //       height: 20,
-          //     ),
-          //     textField(ownerAddress, "Residential address",
-          //         "Enter owner's address"),
-          //     const SizedBox(
-          //       height: 20,
-          //     ),
-          //     textField(ownerPhoneNumber, "Phone number",
-          //         "Enter owner's phone number"),
-          //     const SizedBox(
-          //       height: 20,
-          //     ),
-          //   ],
-          // )
+          title: const Text('Rent Type'),
+          content: (rentType == "Plazas")
+              ? _formRent()
+              : (rentType == "Houses")
+                  ? _formRent()
+                  : (rentType == "EventCenter")
+                      ? _formRent()
+                      : (rentType == "Schools")
+                          ? _formRent()
+                          : (rentType == "Hospitals")
+                              ? _formRent()
+                              : _formRent(),
         ),
         Step(
             state:
                 _activeStepIndex <= 2 ? StepState.editing : StepState.complete,
             isActive: _activeStepIndex >= 2,
-            title: const Text('Assessment'),
+            title: const Text('Agent'),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                textField(rentAmount, "Rent Amount", ""),
-                const SizedBox(
-                  height: 20,
-                ),
-                textField(dueDate, "Due Date", ""),
-                const SizedBox(
-                  height: 20,
-                ),
-                OutlinedButton.icon(
-                  icon: const Icon(Icons.folder_open),
-                  onPressed: () {
-                    // pickImage();
-                    _pickFile();
-                  },
-                  label: const Text("Attach Document"),
-                  // style: ,
-                ),
-
-                // _image != null
-                //     ? Text(basename(_image!.name))
-                //     : const Text('Please select an image'),
-                const SizedBox(
-                  height: 20,
-                ),
-              ],
+              children: [_form1()],
             )),
         Step(
             state: StepState.complete,
             isActive: _activeStepIndex >= 3,
             title: const Text('Confirm'),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const Text('Tenant Info',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('Full Name: ${fullName.text}'),
-                Text('phone Number: ${phoneNumber.text}'),
-                Text('Business Address: ${businessAddress.text}'),
-                Text('Contact Address: ${contactAddress.text}'),
-                Text('Email: ${email.text}'),
-                Text('KadIRS ID: ${kadIRSId.text}'),
-                Text('RC Number: ${rcNo.text}'),
-                Text('Business Type: $dropdownValue'),
-                const Text('Owner Info',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('Owner\'s Full Name: ${ownerFullName.text}'),
-                Text('Owner\'s Phone Number: ${ownerPhoneNumber.text}'),
-                Text('Owner\'s Residential Adress: ${ownerAddress.text}'),
-                const Text('Assessment',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Text('Rent Amount: ${rentAmount.text}'),
-                Text('Due Date: ${dueDate.text}'),
-              ],
+            content: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                // mainAxisAlignment: MainAxisAlignment,
+                children: [
+                  const Text('LandLord Info',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text('Taxpayer Name: ${fullName.text}'),
+                  Text('Registered Name: ${regName.text}'),
+                  Text('Nationality: ${nationality.text}'),
+                  Text('Residential Address: ${resAddress.text}'),
+                  Text('Phone Number: ${phone.text}'),
+                  Text('Business Type: $dropdownValue'),
+                  Text('Business Name: ${busName.text}'),
+                  Text('Business Address: ${busAddress.text}'),
+                  Text('Commencement Date: ${dueDate.text}'),
+                  Text('Business Registration No: ${busRegNo.text}'),
+                  Text('Taxpayer Identification No(TIN): ${tin.text}'),
+                  Text('KadIRS ID: ${kadIRSId.text}'),
+                  Text('Rent Type: $rentType'),
+                  const Padding(padding: EdgeInsets.all(5.0)),
+                  const Text('Agent Info',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text('Agent\'s Full Name: ${agName.text}'),
+                  Text('Agent\'s Phone Number: ${agPhone.text}'),
+                  Text('Agent\'s Residential Adress: ${agAddress.text}'),
+                ],
+              ),
             )),
       ];
 
@@ -223,30 +188,30 @@ class _HomePageState extends State<HomePage> {
   //   // debugPrint(basename(_image));
   // }
 
-  void _pickFile() async {
-    // opens storage to pick files and the picked file or files
-    // are assigned into result and if no file is chosen result is null.
-    // you can also toggle "allowMultiple" true or false depending on your need
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(allowMultiple: false);
+  // void _pickFile() async {
+  // opens storage to pick files and the picked file or files
+  // are assigned into result and if no file is chosen result is null.
+  // you can also toggle "allowMultiple" true or false depending on your need
+  // FilePickerResult? result =
+  //     await FilePicker.platform.pickFiles(allowMultiple: false);
 
-    if (result != null) {
-      PlatformFile file = result.files.first;
+  // if (result != null) {
+  //   PlatformFile file = result.files.first;
 
-      debugPrint(file.name);
-    }
+  //   debugPrint(file.name);
+  // }
 
-    // if no file is picked
-    // if (result == null) return;
+  // if no file is picked
+  // if (result == null) return;
 
-    // String filename = result.files.first.name;
-    // // we will log the name, size and path of the
-    // // first picked file (if multiple are selected)
-    // // print(result.files.first.name);
-    // print(file.name);
-    // print(result.files.first.size);
-    // print(result.files.first.path);
-  }
+  // String filename = result.files.first.name;
+  // // we will log the name, size and path of the
+  // // first picked file (if multiple are selected)
+  // // print(result.files.first.name);
+  // print(file.name);
+  // print(result.files.first.size);
+  // print(result.files.first.path);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -336,33 +301,24 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          textField(fullName, "Full name", "Enter tenant's full name"),
+          textField(fullName, "Taxpayer Name", TextInputType.text),
           const SizedBox(
             height: 20,
           ),
-          textField(phoneNumber, "Phone number", "Enter tenant's phone number"),
+          textField(regName, "Registered Name", TextInputType.text),
           const SizedBox(
             height: 20,
           ),
-          textField(contactAddress, "Contact address",
-              "Enter tenant's contact address"),
+          textField(nationality, "Nationality", TextInputType.text),
           const SizedBox(
             height: 20,
           ),
-          textField(businessAddress, "Businness address",
-              "Enter tenant's business address"),
+          textField(
+              resAddress, "Residential Address", TextInputType.streetAddress),
           const SizedBox(
             height: 20,
           ),
-          textField(email, "Email", "Enter tenant's email address"),
-          const SizedBox(
-            height: 20,
-          ),
-          textField(rcNo, "RC number", "Enter tenant's RC number"),
-          const SizedBox(
-            height: 20,
-          ),
-          textField(kadIRSId, "KADIRS ID", "Enter tenant's KADIRS ID"),
+          textField(phone, "Phone Number", TextInputType.phone),
           const SizedBox(
             height: 20,
           ),
@@ -397,78 +353,145 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
+          textField(busName, "Businness Name", TextInputType.text),
+          const SizedBox(
+            height: 20,
+          ),
+          textField(
+              busAddress, "Businness Address", TextInputType.streetAddress),
+          const SizedBox(
+            height: 20,
+          ),
+          // textField(dueDate, "Commencement Date", TextInputType.datetime),
+          TextFormField(
+              controller: dueDate,
+              keyboardType: TextInputType.none,
+              decoration: decorate('Commencement Date'),
+              onTap: () async {
+                DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(
+                        2000), //DateTime.now() - not to allow to choose before today.
+                    lastDate: DateTime(2101));
+
+                if (pickedDate != null) {
+                  // print(
+                  //     pickedDate); //pickedDate output format => 2021-03-10 00:00:00.000
+                  String formattedDate =
+                      DateFormat('dd-MM-yyyy').format(pickedDate);
+                  // print(
+                  //     formattedDate); //formatted date output using intl package =>  2021-03-16
+                  //you can implement different kind of Date Format here according to your requirement
+
+                  setState(() {
+                    dueDate.text =
+                        formattedDate; //set output date to TextField value.
+                  });
+                } else {
+                  debugPrint("Date is not selected");
+                }
+              }),
+          const SizedBox(
+            height: 20,
+          ),
+          textField(busRegNo, "Businness Registered No", TextInputType.text),
+          const SizedBox(
+            height: 20,
+          ),
+          textField(tin, "Taxpayer Identification No", TextInputType.text),
+          const SizedBox(
+            height: 20,
+          ),
+          textField(kadIRSId, "KADIRS ID", TextInputType.text),
+          const SizedBox(
+            height: 20,
+          ),
+          DropdownButtonFormField<String>(
+            decoration: const InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  borderSide: BorderSide(color: Colors.grey, width: 0.0),
+                ),
+                border: OutlineInputBorder()),
+            value: rentType,
+            onChanged: (String? newValue) {
+              setState(() {
+                rentType = newValue!;
+              });
+            },
+            items: <String>[
+              'Select Type of Rent',
+              'Plazas',
+              'Houses',
+              'Event Center',
+              'Schools',
+              'Hospitals',
+            ].map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(
+                  value,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
         ],
       ),
     );
   }
 
-  Widget textField(controller, String label, hint) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: TextInputType.text,
-      decoration: decorate(label, hint),
+  Widget _form1() {
+    return Form(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          textField(agName, "Agent's Full Name", TextInputType.text),
+          const SizedBox(
+            height: 20,
+          ),
+          textField(agPhone, "Phone number", TextInputType.phone),
+          const SizedBox(
+            height: 20,
+          ),
+          textField(agAddress, "Agent's Address", TextInputType.streetAddress),
+          const SizedBox(
+            height: 20,
+          ),
+        ],
+      ),
     );
   }
 
-  InputDecoration decorate(String label, String hint) {
+  Widget _formRent() {
+    return Form(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: const <Widget>[Text("Under Construction")],
+      ),
+    );
+  }
+
+  Widget textField(controllerValue, String label, inputType) {
+    return TextFormField(
+      controller: controllerValue,
+      keyboardType: inputType,
+      decoration: decorate(label),
+    );
+  }
+
+  InputDecoration decorate(String label) {
     return InputDecoration(
         labelText: label,
-        hintText: hint,
         enabledBorder: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(20.0)),
           borderSide: BorderSide(color: Colors.grey, width: 0.0),
         ),
         border: const OutlineInputBorder());
   }
-
-//  "fullname": fullName.text,
-//  "phonenumber": phoneNumber.text,
-//  "baddress": businessAddress.text,
-//  "caddress": contactAddress.text,
-//  "email": email.text,
-//  "bname": businessName.text,
-//  "kadirsid": kadIRSId.text,
-//  "rcno": rcNo.text,
-//  "ofullname": ownerFullName.text,
-//  "ophone": ownerPhoneNumber.text,
-//  "oaddress": ownerAddress.text,
-//  "rentamount": rentAmount.text,
-//  "duedate": dueDate.text,
-
-// ($_POST["fullname"]) && isset($_POST["phonenumber"])
-//          && isset($_POST["baddress"]) && isset($_POST["caddress"])
-//          && isset($_POST["email"])&& isset($_POST["bname"])
-//          && isset($_POST["kadirsid"])&& isset($_POST["rcno"])
-//          && isset($_POST["ofullname"])&& isset($_POST["ophone"])
-//          && isset($_POST["oaddress"])&& isset($_POST["rentamount"])
-//          && isset($_POST["duedate"])
-
-//  $fullname
-// $phonenumber
-//    $baddress
-//    $caddress
-//       $email
-//       $bname
-//    $kadirsid
-//        $rcno
-//   $ofullname
-//      $ophone
-//    $oaddress
-//  $rentamount
-//     $duedate
-
-// $fullname = mysqli_real_escape_string($link, $fullname);
-//             $phonenumber = mysqli_real_escape_string($link, $phonenumber);
-//             $baddress = mysqli_real_escape_string($link, $baddress);
-//             $caddress = mysqli_real_escape_string($link, $caddress);
-//             $email = mysqli_real_escape_string($link, $email);
-//             $bname = mysqli_real_escape_string($link, $bname);
-//             $kadirsid = mysqli_real_escape_string($link, $kadirsid);
-//             $rcno = mysqli_real_escape_string($link, $rcno);
-//             $ofullname = mysqli_real_escape_string($link, $ofullname);
-//             $ophone = mysqli_real_escape_string($link, $ophone);
-//             $oaddress = mysqli_real_escape_string($link, $oaddress);
-//             $rentamount = mysqli_real_escape_string($link, $rentamount);
-//             $duedate = mysqli_real_escape_string($link, $duedate);
-
 }

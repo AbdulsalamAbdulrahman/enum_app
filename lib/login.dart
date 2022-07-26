@@ -198,16 +198,13 @@ class _LoginState extends State<Login> {
 
     var data = {'username': username, 'password': password};
 
-    debugPrint(username);
-    debugPrint(password);
-
     SharedPreferences pref = await SharedPreferences.getInstance();
     await pref.setString('username', username);
 
     var response = await http.post(url, body: json.encode(data));
     if (response.statusCode == 200) {
       //Server response into variable
-      debugPrint(response.body);
+      // debugPrint(response.body);
       var msg = jsonDecode(response.body);
 
       //Check Login Status
