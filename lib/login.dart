@@ -160,6 +160,7 @@ class _LoginState extends State<Login> {
                           onPressed: () async {
                             if (key.currentState!.validate()) {
                               key.currentState!.save();
+                              WidgetsFlutterBinding.ensureInitialized();
                               isoffline
                                   ? setState(() {
                                       //hide progress indicator
