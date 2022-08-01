@@ -3,7 +3,7 @@ import 'package:enum_app/homepage.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:async';
-
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
@@ -17,11 +17,54 @@ class _LoginState extends State<Login> {
   final key = GlobalKey<FormState>();
 
   bool _isObscure = true;
-
   bool _isLoading = false;
+  StreamSubscription? connection;
+  bool isoffline = false;
 
   String username = '';
   String password = '';
+
+  @override
+  void initState() {
+    connection = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      // whenevery connection status is changed.
+      if (result == ConnectivityResult.none) {
+        //there is no any connection
+        setState(() {
+          isoffline = true;
+        });
+      } else if (result == ConnectivityResult.mobile) {
+        //connection is mobile data network
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.wifi) {
+        //connection is from wifi
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.ethernet) {
+        //connection is from wired connection
+        setState(() {
+          isoffline = false;
+        });
+      } else if (result == ConnectivityResult.bluetooth) {
+        //connection is from bluetooth threatening
+        setState(() {
+          isoffline = false;
+        });
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    connection!.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +80,13 @@ class _LoginState extends State<Login> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            const Padding(padding: EdgeInsets.only(top: 40)),
             SizedBox(
-              height: 80,
+              height: 50,
               child: Image.asset('kad.jpg'),
             ),
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: const <Widget>[
@@ -51,7 +95,7 @@ class _LoginState extends State<Login> {
                     style: TextStyle(color: Colors.white, fontSize: 25),
                   ),
                   SizedBox(
-                    height: 10,
+                    height: 5,
                   ),
                   Text(
                     "Sign In",
@@ -60,7 +104,7 @@ class _LoginState extends State<Login> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 60),
             Expanded(
               child: Container(
                 decoration: const BoxDecoration(
@@ -70,11 +114,11 @@ class _LoginState extends State<Login> {
                         topRight: Radius.circular(60))),
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.all(30),
+                    padding: const EdgeInsets.all(20),
                     child: Column(
                       children: <Widget>[
                         const SizedBox(
-                          height: 60,
+                          height: 100,
                         ),
                         Container(
                             decoration: BoxDecoration(
@@ -113,10 +157,22 @@ class _LoginState extends State<Login> {
                             minimumSize: const Size(500, 50),
                             maximumSize: const Size(500, 50),
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             if (key.currentState!.validate()) {
                               key.currentState!.save();
-                              _isLoading ? null : userLogin();
+                              isoffline
+                                  ? setState(() {
+                                      //hide progress indicator
+                                      _isLoading = false;
+
+                                      //Show Error Message Dialog
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                        backgroundColor: Colors.red,
+                                        content: Text('No Internet Connection'),
+                                      ));
+                                    })
+                                  : userLogin();
                             }
                           },
                         ),

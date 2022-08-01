@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:enum_app/forms.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -11,30 +12,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _formKey = GlobalKey<FormState>();
+  final List<GlobalKey<FormState>> _formKey = [
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>()
+  ];
 
   int _activeStepIndex = 0;
 
-  //Landlord
-  TextEditingController fullName = TextEditingController();
-  TextEditingController regName = TextEditingController();
-  TextEditingController nationality = TextEditingController();
-  TextEditingController resAddress = TextEditingController();
-  TextEditingController phone = TextEditingController();
-  TextEditingController busName = TextEditingController();
-  TextEditingController busAddress = TextEditingController();
-  TextEditingController dueDate = TextEditingController();
-  TextEditingController busRegNo = TextEditingController();
-  TextEditingController tin = TextEditingController();
-  TextEditingController kadIRSId = TextEditingController();
-
-  //Agent
-  TextEditingController agName = TextEditingController();
-  TextEditingController agAddress = TextEditingController();
-  TextEditingController agPhone = TextEditingController();
-
   String rentType = 'Select Type of Rent';
   String dropdownValue = 'Business Type';
+  String dropdownPlaza = 'No. of Floors';
 
   late bool error, sending, success;
   late String msg;
@@ -57,7 +46,7 @@ class _HomePageState extends State<HomePage> {
       "nationality": nationality.text,
       "resaddress": resAddress.text,
       "phone": phone.text,
-      "Businesstype": dropdownValue,
+      "businesstype": dropdownValue,
       "busname": busName.text,
       "busaddress": busAddress.text,
       "duedate": dueDate.text,
@@ -81,11 +70,24 @@ class _HomePageState extends State<HomePage> {
           msg = data["message"]; //error message from server
         });
       } else {
-        fullName.text = "";
-        phone.text = "";
-        dueDate.text = "";
+        fullName.text = '';
+        regName.text = '';
+        nationality.text = '';
+        resAddress.text = '';
+        phone.text = '';
         dropdownValue = 'Business Type';
+        busName.text = '';
+        busAddress.text = '';
+        dueDate.text = '';
+        busRegNo.text = '';
+        tin.text = '';
+        kadIRSId.text = '';
+        rentType = 'Select Type of Rent';
+        agName.text = '';
+        agAddress.text = '';
+        agPhone.text = '';
 
+        showMessage('Data Submitted Succesfully');
         //after write success, make fields empty
 
         setState(() {
@@ -97,7 +99,7 @@ class _HomePageState extends State<HomePage> {
       //there is error
       setState(() {
         error = true;
-        msg = "Error during sendign data.";
+        msg = "Error during sending data.";
         sending = false;
         //mark error and refresh UI with setState
       });
@@ -118,7 +120,7 @@ class _HomePageState extends State<HomePage> {
           isActive: _activeStepIndex >= 1,
           title: const Text('Rent Type'),
           content: (rentType == "Plazas")
-              ? _formRent()
+              ? _form2()
               : (rentType == "Houses")
                   ? _formRent()
                   : (rentType == "EventCenter")
@@ -127,7 +129,7 @@ class _HomePageState extends State<HomePage> {
                           ? _formRent()
                           : (rentType == "Hospitals")
                               ? _formRent()
-                              : _formRent(),
+                              : Container(),
         ),
         Step(
             state:
@@ -223,12 +225,16 @@ class _HomePageState extends State<HomePage> {
         currentStep: _activeStepIndex,
         steps: stepList(),
         onStepContinue: () {
-          if (_activeStepIndex < (stepList().length - 1)) {
-            setState(() {
-              _activeStepIndex += 1;
-            });
-          } else {
-            // print('Submited');
+          if (_formKey[_activeStepIndex].currentState!.validate()) {
+            // _formKey[_activeStepIndex].currentState!.save();
+            if (_activeStepIndex < (stepList().length - 1)) {
+              setState(() {
+                _activeStepIndex += 1;
+              });
+            } else {
+              // print('Submited');
+
+            }
           }
         },
         onStepCancel: () {
@@ -280,7 +286,7 @@ class _HomePageState extends State<HomePage> {
                         minimumSize: const Size.fromHeight(60)),
                     onPressed: controls.onStepCancel,
                     child: Text(
-                      'Cancel',
+                      'Back',
                       style: TextStyle(
                           color: Colors.green.shade900,
                           fontWeight: FontWeight.bold),
@@ -296,7 +302,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _form() {
     return Form(
-      key: _formKey,
+      key: _formKey[0],
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
@@ -321,34 +327,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          DropdownButtonFormField<String>(
-            decoration: const InputDecoration(
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                  borderSide: BorderSide(color: Colors.grey, width: 0.0),
-                ),
-                border: OutlineInputBorder()),
-            value: dropdownValue,
-            onChanged: (String? newValue) {
-              setState(() {
-                dropdownValue = newValue!;
-              });
-            },
-            items: <String>[
-              'Business Type',
-              'Individual',
-              'Group',
-            ].map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(
-                  value,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 15),
-                ),
-              );
-            }).toList(),
-          ),
+          dropDown(),
           const SizedBox(
             height: 20,
           ),
@@ -361,36 +340,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          // textField(dueDate, "Commencement Date", TextInputType.datetime),
-          TextFormField(
-              controller: dueDate,
-              keyboardType: TextInputType.none,
-              decoration: decorate('Commencement Date'),
-              onTap: () async {
-                DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(
-                        2000), //DateTime.now() - not to allow to choose before today.
-                    lastDate: DateTime(2101));
-
-                if (pickedDate != null) {
-                  // print(
-                  //     pickedDate); //pickedDate output format => 2021-03-10 00:00:00.000
-                  String formattedDate =
-                      DateFormat('dd-MM-yyyy').format(pickedDate);
-                  // print(
-                  //     formattedDate); //formatted date output using intl package =>  2021-03-16
-                  //you can implement different kind of Date Format here according to your requirement
-
-                  setState(() {
-                    dueDate.text =
-                        formattedDate; //set output date to TextField value.
-                  });
-                } else {
-                  debugPrint("Date is not selected");
-                }
-              }),
+          datetextField(),
           const SizedBox(
             height: 20,
           ),
@@ -406,37 +356,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          DropdownButtonFormField<String>(
-            decoration: const InputDecoration(
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                  borderSide: BorderSide(color: Colors.grey, width: 0.0),
-                ),
-                border: OutlineInputBorder()),
-            value: rentType,
-            onChanged: (String? newValue) {
-              setState(() {
-                rentType = newValue!;
-              });
-            },
-            items: <String>[
-              'Select Type of Rent',
-              'Plazas',
-              'Houses',
-              'Event Center',
-              'Schools',
-              'Hospitals',
-            ].map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(
-                  value,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 15),
-                ),
-              );
-            }).toList(),
-          ),
+          dropDown1(),
           const SizedBox(
             height: 20,
           ),
@@ -447,6 +367,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _form1() {
     return Form(
+      key: _formKey[2],
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
@@ -469,6 +390,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _formRent() {
     return Form(
+      key: _formKey[1],
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: const <Widget>[Text("Under Construction")],
@@ -476,21 +398,193 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget textField(controllerValue, String label, inputType) {
-    return TextFormField(
-      controller: controllerValue,
-      keyboardType: inputType,
-      decoration: decorate(label),
+  Widget _form2() {
+    return Form(
+      key: _formKey[1],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          dropDownPlaza(),
+          const SizedBox(
+            height: 20,
+          ),
+          (dropdownPlaza == "1")
+              ? firstFloor()
+              : (dropdownPlaza == "2")
+                  ? secondFloor()
+                  : (dropdownPlaza == "3")
+                      ? thirdFloor()
+                      : (dropdownPlaza == "4")
+                          ? fourthFloor()
+                          : (dropdownPlaza == "5")
+                              ? fifthFloor()
+                              : (dropdownPlaza == "6")
+                                  ? sixthFloor()
+                                  : (dropdownPlaza == "7")
+                                      ? seventhFloor()
+                                      : (dropdownPlaza == "8")
+                                          ? eightFloor()
+                                          : (dropdownPlaza == "9")
+                                              ? ninthFloor()
+                                              : (dropdownPlaza == "10")
+                                                  ? tenthFloor()
+                                                  : Container()
+        ],
+      ),
     );
   }
 
-  InputDecoration decorate(String label) {
-    return InputDecoration(
-        labelText: label,
-        enabledBorder: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(20.0)),
-          borderSide: BorderSide(color: Colors.grey, width: 0.0),
-        ),
-        border: const OutlineInputBorder());
+  Widget datetextField() {
+    return TextFormField(
+        validator: validateField,
+        controller: dueDate,
+        keyboardType: TextInputType.none,
+        decoration: decorate('Commencement Date'),
+        onTap: () async {
+          DateTime? pickedDate = await showDatePicker(
+              context: context,
+              initialDate: DateTime.now(),
+              firstDate: DateTime(
+                  2000), //DateTime.now() - not to allow to choose before today.
+              lastDate: DateTime(2101));
+
+          if (pickedDate != null) {
+            // print(
+            //     pickedDate); //pickedDate output format => 2021-03-10 00:00:00.000
+            String formattedDate = DateFormat('dd-MM-yyyy').format(pickedDate);
+            // print(
+            //     formattedDate); //formatted date output using intl package =>  2021-03-16
+            //you can implement different kind of Date Format here according to your requirement
+
+            setState(() {
+              dueDate.text =
+                  formattedDate; //set output date to TextField value.
+            });
+          } else {}
+        });
+  }
+
+  Widget dropDown() {
+    return DropdownButtonFormField<String>(
+        validator: validateD,
+        decoration: const InputDecoration(
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(20.0)),
+              borderSide: BorderSide(color: Colors.grey, width: 0.0),
+            ),
+            border: OutlineInputBorder()),
+        value: dropdownValue,
+        onChanged: (String? newValue) {
+          setState(() {
+            dropdownValue = newValue!;
+          });
+        },
+        items: <String>[
+          'Business Type',
+          'Individual',
+          'Group',
+        ].map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            ),
+          );
+        }).toList());
+  }
+
+  Widget dropDown1() {
+    return DropdownButtonFormField<String>(
+      validator: validateD,
+      decoration: const InputDecoration(
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+            borderSide: BorderSide(color: Colors.grey, width: 0.0),
+          ),
+          border: OutlineInputBorder()),
+      value: rentType,
+      onChanged: (String? newValue) {
+        setState(() {
+          rentType = newValue!;
+        });
+      },
+      items: <String>[
+        'Select Type of Rent',
+        'Plazas',
+        'Houses',
+        'Event Center',
+        'Schools',
+        'Hospitals',
+      ].map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget dropDownPlaza() {
+    return DropdownButtonFormField<String>(
+      validator: validateD,
+      decoration: const InputDecoration(
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+            borderSide: BorderSide(color: Colors.grey, width: 0.0),
+          ),
+          border: OutlineInputBorder()),
+      value: dropdownPlaza,
+      onChanged: (String? newValue) {
+        setState(() {
+          dropdownPlaza = newValue!;
+        });
+      },
+      items: <String>[
+        'No. of Floors',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        '10',
+      ].map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Future<dynamic> showMessage(String msg) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(msg),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => const HomePage()),
+                    (route) => false);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
