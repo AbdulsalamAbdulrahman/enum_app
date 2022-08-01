@@ -64,7 +64,7 @@ class _HomePageState extends State<HomePage> {
       "rate": rate.text,
       // "housetype": dropdownHouses,
       // "flats": flats.text,
-      // "rateH": rateH.text
+      // "rateh": rateH.text
     }); //sending post request with header data
 
     if (res.statusCode == 200) {
