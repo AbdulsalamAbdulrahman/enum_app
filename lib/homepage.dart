@@ -331,12 +331,12 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          textField(busName, "Businness Name", TextInputType.text),
+          textField(busName, "Business Name", TextInputType.text),
           const SizedBox(
             height: 20,
           ),
           textField(
-              busAddress, "Businness Address", TextInputType.streetAddress),
+              busAddress, "Business Address", TextInputType.streetAddress),
           const SizedBox(
             height: 20,
           ),
@@ -344,7 +344,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          textField(busRegNo, "Businness Registered No", TextInputType.text),
+          textField(busRegNo, "Business Registered No", TextInputType.text),
           const SizedBox(
             height: 20,
           ),
