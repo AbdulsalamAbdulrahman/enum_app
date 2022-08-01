@@ -30,28 +30,37 @@ TextEditingController eight = TextEditingController();
 TextEditingController ninth = TextEditingController();
 TextEditingController tenth = TextEditingController();
 
+//plazas info
+TextEditingController floors = TextEditingController();
+TextEditingController shops = TextEditingController();
+TextEditingController rate = TextEditingController();
+
+//houses info
+TextEditingController flats = TextEditingController();
+TextEditingController rateH = TextEditingController();
+
 Widget textField(controllerValue, String label, inputType) {
   return TextFormField(
-    validator: validateField,
+    // validator: validateField,
     controller: controllerValue,
     keyboardType: inputType,
     decoration: decorate(label),
   );
 }
 
-String? validateField(value) {
-  if (value.isEmpty) {
-    return "field is required";
-  }
-  return null;
-}
+// String? validateField(value) {
+//   if (value.isEmpty) {
+//     return "field is required";
+//   }
+//   return null;
+// }
 
-String? validateD(value) {
-  if (value == 'Business Type' || value == 'Select Type of Rent') {
-    return "field is required";
-  }
-  return null;
-}
+// String? validateD(value) {
+//   if (value == 'Business Type' || value == 'Select Type of Rent') {
+//     return "field is required";
+//   }
+//   return null;
+// }
 
 InputDecoration decorate(String label) {
   return InputDecoration(
@@ -346,6 +355,44 @@ Widget tenthFloor() {
         height: 20,
       ),
       textField(tenth, 'Tenth Floor', TextInputType.text),
+      const SizedBox(
+        height: 20,
+      ),
+    ],
+  );
+}
+
+Widget plazaInfo() {
+  return Column(
+    children: <Widget>[
+      // textField(floors, 'Number of Floors', TextInputType.text),
+      // const SizedBox(
+      //   height: 20,
+      // ),
+      textField(shops, 'Shops per floor', TextInputType.text),
+      const SizedBox(
+        height: 20,
+      ),
+      textField(rate, 'Rate', TextInputType.text),
+      const SizedBox(
+        height: 20,
+      ),
+    ],
+  );
+}
+
+Widget housesInfo() {
+  return Column(
+    children: <Widget>[
+      // textField(floors, 'Number of Floors', TextInputType.text),
+      // const SizedBox(
+      //   height: 20,
+      // ),
+      textField(flats, 'No. of flats', TextInputType.text),
+      const SizedBox(
+        height: 20,
+      ),
+      textField(rateH, 'Rate', TextInputType.text),
       const SizedBox(
         height: 20,
       ),

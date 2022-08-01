@@ -1,6 +1,7 @@
 import 'package:easy_splash_screen/easy_splash_screen.dart';
+import 'package:enum_app/homepage.dart';
 import 'package:flutter/material.dart';
-import 'package:enum_app/login.dart';
+// import 'package:enum_app/login.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -34,9 +35,9 @@ class _SplashPageState extends State<SplashPage> {
         "Loading...",
         style: TextStyle(color: Colors.black54),
       ),
-      navigator: const Login(
-        title: '',
-      ),
+      navigator: const HomePage(
+          // title: '',
+          ),
       durationInSeconds: 3,
     );
   }

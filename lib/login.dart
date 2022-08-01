@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key, required String title}) : super(key: key);
@@ -251,79 +251,53 @@ class _LoginState extends State<Login> {
       _isLoading = true;
     });
 
-    Uri url = Uri.parse('https://kadunaelectric.com/meterreading/test.php');
+    Uri url = Uri.parse('https://kadirstest.000webhostapp.com/login.php');
 
     var data = {'username': username, 'password': password};
 
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    await pref.setString('username', username);
-
     var response = await http.post(url, body: json.encode(data));
+
+    var jsondata = json.decode(response.body);
+
     if (response.statusCode == 200) {
-      //Server response into variable
-      // debugPrint(response.body);
-      var msg = jsonDecode(response.body);
+      var jsondata = json.decode(response.body);
+      debugPrint(jsondata);
 
-      //Check Login Status
-      if (msg['loginStatus'] == true) {
-        setState(() {
-          //hide progress indicator
-          _isLoading = false;
-        });
-        if (!mounted) return;
+      if (!mounted) return;
 
-        // Navigate to Home Screen
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const HomePage()),
-            (route) => false);
-      } else {
-        setState(() {
-          //hide progress indicator
-          _isLoading = false;
-
-          //Show Error Message Dialog
-          showMessage(msg["message"]);
-        });
-      }
+      // Navigate to Home Screen
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const HomePage()),
+          (route) => false);
     } else {
-      setState(() {
-        //hide progress indicator
-        _isLoading = false;
-
-        //Show Error Message Dialog
-        showMessage("Error connecting to Server.");
-      });
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(jsondata),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("OK"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
-  Future<dynamic> showMessage(String msg) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(msg),
-          actions: <Widget>[
-            TextButton(
-              child: const Text("OK"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+  InputDecoration decorate(String label, icon, String hint) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      prefixIcon: Icon(icon),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(5.0),
+        borderSide: const BorderSide(),
+      ),
     );
   }
-}
-
-InputDecoration decorate(String label, icon, String hint) {
-  return InputDecoration(
-    labelText: label,
-    hintText: hint,
-    prefixIcon: Icon(icon),
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(5.0),
-      borderSide: const BorderSide(),
-    ),
-  );
 }

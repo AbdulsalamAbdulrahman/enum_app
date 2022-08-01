@@ -24,11 +24,13 @@ class _HomePageState extends State<HomePage> {
   String rentType = 'Select Type of Rent';
   String dropdownValue = 'Business Type';
   String dropdownPlaza = 'No. of Floors';
+  String dropdownHouses = 'House Type';
 
   late bool error, sending, success;
   late String msg;
 
-  String phpurl = 'https://kadunaelectric.com/meterreading/test_write.php';
+  String phpurl = 'https://kadirstest.000webhostapp.com/write.php';
+  // String phpurl2 = 'https://kadirstest.000webhostapp.com/write2.php';
 
   @override
   void initState() {
@@ -56,7 +58,13 @@ class _HomePageState extends State<HomePage> {
       "renttype": rentType,
       "agname": agName.text,
       "agaddress": agAddress.text,
-      "agphone": agPhone.text
+      "agphone": agPhone.text,
+      "floors": dropdownPlaza,
+      "shops": shops.text,
+      "rate": rate.text,
+      // "housetype": dropdownHouses,
+      // "flats": flats.text,
+      // "rateH": rateH.text
     }); //sending post request with header data
 
     if (res.statusCode == 200) {
@@ -86,6 +94,12 @@ class _HomePageState extends State<HomePage> {
         agName.text = '';
         agAddress.text = '';
         agPhone.text = '';
+        dropdownPlaza = 'No. of Floors';
+        shops.text = '';
+        rate.text = '';
+        // dropdownHouses = "House Type";
+        // flats.text = "";
+        // rateH.text = '';
 
         showMessage('Data Submitted Succesfully');
         //after write success, make fields empty
@@ -106,6 +120,53 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // Future<void> sendData2() async {
+  //   var res = await http.post(Uri.parse(phpurl2), body: {
+  //     "floors": dropdownPlaza,
+  //     "shops": shops.text,
+  //     "rate": rate.text,
+  //     // "housetype": dropdownHouses,
+  //     // "flats": flats.text,
+  //     // "rateH": rateH.text
+  //   }); //sending post request with header data
+
+  //   if (res.statusCode == 200) {
+  //     debugPrint(res.body); //print raw response on console
+  //     var data = json.decode(res.body); //decoding json to array
+  //     if (data["error"]) {
+  //       setState(() {
+  //         //refresh the UI when error is recieved from server
+  //         sending = false;
+  //         error = true;
+  //         msg = data["message"]; //error message from server
+  //       });
+  //     } else {
+  //       dropdownPlaza = 'No. of Floors';
+  //       shops.text = '';
+  //       rate.text = '';
+  //       // dropdownHouses = "House Type";
+  //       // flats.text = "";
+  //       // rateH.text = '';
+
+  //       showMessage('Data Submitted Succesfully');
+  //       //after write success, make fields empty
+
+  //       setState(() {
+  //         sending = false;
+  //         success = true; //mark success and refresh UI with setState
+  //       });
+  //     }
+  //   } else {
+  //     //there is error
+  //     setState(() {
+  //       error = true;
+  //       msg = "Error during sending data.";
+  //       sending = false;
+  //       //mark error and refresh UI with setState
+  //     });
+  //   }
+  // }
+
   List<Step> stepList() => [
         Step(
           state: _activeStepIndex <= 0 ? StepState.editing : StepState.complete,
@@ -122,7 +183,7 @@ class _HomePageState extends State<HomePage> {
           content: (rentType == "Plazas")
               ? _form2()
               : (rentType == "Houses")
-                  ? _formRent()
+                  ? _form3()
                   : (rentType == "EventCenter")
                       ? _formRent()
                       : (rentType == "Schools")
@@ -269,6 +330,7 @@ class _HomePageState extends State<HomePage> {
                               sending = true;
                             });
                             sendData();
+                            // sendData2();
                           },
                           child: const Text('Submit',
                               style: TextStyle(color: Colors.white)),
@@ -409,26 +471,58 @@ class _HomePageState extends State<HomePage> {
             height: 20,
           ),
           (dropdownPlaza == "1")
-              ? firstFloor()
+              ? plazaInfo()
               : (dropdownPlaza == "2")
-                  ? secondFloor()
+                  ? plazaInfo()
                   : (dropdownPlaza == "3")
-                      ? thirdFloor()
+                      ? plazaInfo()
                       : (dropdownPlaza == "4")
-                          ? fourthFloor()
+                          ? plazaInfo()
                           : (dropdownPlaza == "5")
-                              ? fifthFloor()
+                              ? plazaInfo()
                               : (dropdownPlaza == "6")
-                                  ? sixthFloor()
+                                  ? plazaInfo()
                                   : (dropdownPlaza == "7")
-                                      ? seventhFloor()
+                                      ? plazaInfo()
                                       : (dropdownPlaza == "8")
-                                          ? eightFloor()
+                                          ? plazaInfo()
                                           : (dropdownPlaza == "9")
-                                              ? ninthFloor()
+                                              ? plazaInfo()
                                               : (dropdownPlaza == "10")
-                                                  ? tenthFloor()
+                                                  ? plazaInfo()
                                                   : Container()
+        ],
+      ),
+    );
+  }
+
+  Widget _form3() {
+    return Form(
+      key: _formKey[1],
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          dropDownHouses(),
+          const SizedBox(
+            height: 20,
+          ),
+          (dropdownHouses == "Single")
+              ? housesInfo()
+              : (dropdownHouses == "1-Bedroom")
+                  ? housesInfo()
+                  : (dropdownHouses == "2-Bedroom")
+                      ? housesInfo()
+                      : (dropdownHouses == "3-Bedroom")
+                          ? housesInfo()
+                          : (dropdownHouses == "4-Bedroom")
+                              ? housesInfo()
+                              : (dropdownHouses == "5-Bedroom")
+                                  ? housesInfo()
+                                  : (dropdownHouses == "6-Bedroom")
+                                      ? housesInfo()
+                                      : (dropdownHouses == "10")
+                                          ? plazaInfo()
+                                          : Container()
         ],
       ),
     );
@@ -436,7 +530,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget datetextField() {
     return TextFormField(
-        validator: validateField,
+        // validator: validateField,
         controller: dueDate,
         keyboardType: TextInputType.none,
         decoration: decorate('Commencement Date'),
@@ -466,7 +560,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget dropDown() {
     return DropdownButtonFormField<String>(
-        validator: validateD,
+        // validator: validateD,
         decoration: const InputDecoration(
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -496,7 +590,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget dropDown1() {
     return DropdownButtonFormField<String>(
-      validator: validateD,
+      // validator: validateD,
       decoration: const InputDecoration(
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -530,7 +624,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget dropDownPlaza() {
     return DropdownButtonFormField<String>(
-      validator: validateD,
+      // validator: validateD,
       decoration: const InputDecoration(
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -555,6 +649,42 @@ class _HomePageState extends State<HomePage> {
         '8',
         '9',
         '10',
+      ].map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget dropDownHouses() {
+    return DropdownButtonFormField<String>(
+      // validator: validateD,
+      decoration: const InputDecoration(
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+            borderSide: BorderSide(color: Colors.grey, width: 0.0),
+          ),
+          border: OutlineInputBorder()),
+      value: dropdownHouses,
+      onChanged: (String? newValue) {
+        setState(() {
+          dropdownHouses = newValue!;
+        });
+      },
+      items: <String>[
+        'House Type',
+        'Single',
+        '1-Bedroom',
+        '2-Bedroom',
+        '3-Bedroom',
+        '4-Bedroom',
+        '5-Bedroom',
+        '6-Bedroom',
       ].map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
