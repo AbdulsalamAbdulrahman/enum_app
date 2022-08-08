@@ -46,11 +46,11 @@ class _HomePageState extends State<HomePage> {
   int activeStepIndex = 0;
 
   String rentType = 'Select Type of Rent';
-  String dropdownValue = 'Business Type';
+  String dropdownValue = 'Individual';
   String dropdownPlaza = 'No. of Floors';
   String dropdownHouses = 'House Type';
-  String identification = 'Select Means of Identification';
-  String agidentification = 'Select Means of Identification';
+  String identification = 'NIN';
+  String agidentification = 'NIN';
 
   late bool error, sending, success;
   late String msg;
@@ -140,9 +140,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future sendData() async {
+    setState(() {
+      _isLoading = true;
+    });
     var res = await http.post(Uri.parse(phpurl), body: {
-      // jsonEncode(dataa)
-      //tp table
       "fullname": fullName.text,
       "regname": regName.text,
       "nationality": nationality.text,
@@ -188,16 +189,16 @@ class _HomePageState extends State<HomePage> {
       } else {
         fullName.text = '';
         regName.text = '';
-        nationality.text = '';
+        nationality.text = 'Nigeria';
         resAddress.text = '';
         phone.text = '';
-        dropdownValue = 'Business Type';
+        dropdownValue = 'Individual';
         busName.text = '';
         busAddress.text = '';
         dueDate.text = '';
         busRegNo.text = '';
         areaoffice.text = '';
-        identification = "Select Means of Identification";
+        identification = "NIN";
         nin.text = '';
         kadIRSId.text = '';
         rentType = 'Select Type of Rent';
@@ -205,7 +206,7 @@ class _HomePageState extends State<HomePage> {
         agName.text = '';
         agAddress.text = '';
         agPhone.text = '';
-        agidentification = 'Select Means of Identification';
+        agidentification = 'NIN';
         agNin.text = '';
 
         dropdownPlaza = 'No. of Floors';
@@ -232,9 +233,15 @@ class _HomePageState extends State<HomePage> {
         //mark error and refresh UI with setState
       });
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future sendDataHouses() async {
+    setState(() {
+      _isLoading = true;
+    });
     var res = await http.post(Uri.parse(phpurl2), body: {
       "fullname": fullName.text,
       "regname": regName.text,
@@ -275,16 +282,16 @@ class _HomePageState extends State<HomePage> {
       } else {
         fullName.text = '';
         regName.text = '';
-        nationality.text = '';
+        nationality.text = 'Nigeria';
         resAddress.text = '';
         phone.text = '';
-        dropdownValue = 'Business Type';
+        dropdownValue = 'Individual';
         busName.text = '';
         busAddress.text = '';
         dueDate.text = '';
         busRegNo.text = '';
         areaoffice.text = '';
-        identification = "Select Means of Identification";
+        identification = "NIN";
         nin.text = '';
         kadIRSId.text = '';
         rentType = 'Select Type of Rent';
@@ -292,7 +299,7 @@ class _HomePageState extends State<HomePage> {
         agName.text = '';
         agAddress.text = '';
         agPhone.text = '';
-        agidentification = 'Select Means of Identification';
+        agidentification = 'NIN';
         agNin.text = '';
 
         dropdownHouses = 'House Type';
@@ -316,6 +323,9 @@ class _HomePageState extends State<HomePage> {
         //mark error and refresh UI with setState
       });
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   List<Step> stepList() => [
@@ -331,7 +341,7 @@ class _HomePageState extends State<HomePage> {
           state: activeStepIndex <= 1 ? StepState.editing : StepState.complete,
           isActive: activeStepIndex >= 1,
           title: const Text('Rent Type'),
-          content: (rentType == "Plazas")
+          content: (rentType == "Plaza")
               ? _form2()
               : (rentType == "Houses")
                   ? _form3()
@@ -463,7 +473,7 @@ class _HomePageState extends State<HomePage> {
                             setState(() {
                               sending = true;
                             });
-                            rentType == 'Plazas'
+                            rentType == 'Plaza'
                                 ? sendData()
                                 : rentType == 'Houses'
                                     ? sendDataHouses()
@@ -515,7 +525,11 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          textField(nationality, "Nationality", TextInputType.text),
+          TextFormField(
+            controller: nationality,
+            keyboardType: TextInputType.text,
+            decoration: decorate('Nationality'),
+          ),
           const SizedBox(
             height: 20,
           ),
@@ -749,6 +763,7 @@ class _HomePageState extends State<HomePage> {
         // validator: validateD,
 
         decoration: const InputDecoration(
+            label: Text('Select Business Type'),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(20.0)),
               borderSide: BorderSide(color: Colors.grey, width: 0.0),
@@ -761,7 +776,6 @@ class _HomePageState extends State<HomePage> {
           });
         },
         items: <String>[
-          'Business Type',
           'Individual',
           'Group',
         ].map<DropdownMenuItem<String>>((String value) {
@@ -792,7 +806,7 @@ class _HomePageState extends State<HomePage> {
       },
       items: <String>[
         'Select Type of Rent',
-        'Plazas',
+        'Plaza',
         'Houses',
         'Event Center',
         'Schools',
@@ -888,6 +902,7 @@ class _HomePageState extends State<HomePage> {
     return DropdownButtonFormField<String>(
       // validator: validateD,
       decoration: const InputDecoration(
+          label: Text('Select Means of Identification'),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(20.0)),
             borderSide: BorderSide(color: Colors.grey, width: 0.0),
@@ -900,9 +915,8 @@ class _HomePageState extends State<HomePage> {
         });
       },
       items: <String>[
-        'Select Means of Identification',
-        'TIN',
         'NIN',
+        'TIN',
       ].map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -931,9 +945,8 @@ class _HomePageState extends State<HomePage> {
         });
       },
       items: <String>[
-        'Select Means of Identification',
-        'TIN',
         'NIN',
+        'TIN',
       ].map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,

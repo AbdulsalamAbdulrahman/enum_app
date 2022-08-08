@@ -21,7 +21,8 @@ final List<TextField> rateFields = [];
 //Landlord
 TextEditingController fullName = TextEditingController();
 TextEditingController regName = TextEditingController();
-TextEditingController nationality = TextEditingController();
+TextEditingController nationality = TextEditingController(text: 'Nigeria');
+
 TextEditingController resAddress = TextEditingController();
 TextEditingController phone = TextEditingController();
 TextEditingController busName = TextEditingController();
@@ -52,7 +53,7 @@ TextEditingController eight = TextEditingController();
 TextEditingController ninth = TextEditingController();
 TextEditingController tenth = TextEditingController();
 
-//plazas info
+//Plaza info
 // TextEditingController floorNo = TextEditingController();
 TextEditingController totalshops = TextEditingController();
 // TextEditingController shopsperfloor = TextEditingController();
@@ -67,7 +68,11 @@ TextEditingController rateH = TextEditingController();
 TextEditingController geolong = TextEditingController();
 TextEditingController geolat = TextEditingController();
 
-Widget textField(controllerValue, String label, inputType) {
+Widget textField(
+  controllerValue,
+  String label,
+  inputType,
+) {
   return TextFormField(
     // validator: validateField,
     controller: controllerValue,
