@@ -287,6 +287,9 @@ class _LoginState extends State<Login> {
         },
       );
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   InputDecoration decorate(String label, icon, String hint) {

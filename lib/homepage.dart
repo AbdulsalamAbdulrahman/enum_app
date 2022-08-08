@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:enum_app/forms.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:geolocator/geolocator.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -12,6 +14,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _isLoading = false;
+
   final List<GlobalKey<FormState>> _formKey = [
     GlobalKey<FormState>(),
     GlobalKey<FormState>(),
@@ -19,18 +23,62 @@ class _HomePageState extends State<HomePage> {
     GlobalKey<FormState>()
   ];
 
-  int _activeStepIndex = 0;
+  void clearf() {
+    final floorNo = TextEditingController();
+    final shopsperfloor = TextEditingController();
+    final rate = TextEditingController();
+
+    final floorNoField = _generateTextField(floorNo, "Floor");
+    final shopsperfloorField =
+        _generateTextField(shopsperfloor, "Shops On Floor");
+    final rateField = _generateTextField(rate, "Rate");
+
+    setState(() {
+      floorNoControllers.remove(floorNo);
+      shopsperfloorControllers.remove(shopsperfloor);
+      rateControllers.remove(rate);
+      floorNoFields.remove(floorNoField);
+      shopsperfloorFields.remove(shopsperfloorField);
+      rateFields.remove(rateField);
+    });
+  }
+
+  int activeStepIndex = 0;
 
   String rentType = 'Select Type of Rent';
   String dropdownValue = 'Business Type';
   String dropdownPlaza = 'No. of Floors';
   String dropdownHouses = 'House Type';
+  String identification = 'Select Means of Identification';
+  String agidentification = 'Select Means of Identification';
 
   late bool error, sending, success;
   late String msg;
 
-  String phpurl = 'https://kadirstest.000webhostapp.com/write.php';
-  // String phpurl2 = 'https://kadirstest.000webhostapp.com/write2.php';
+  String phpurl = 'https://kadirs.withholdingtax.ng/write_mobile.php';
+  String phpurl2 = 'https://kadirs.withholdingtax.ng/write_mobile_house.php';
+
+//geo
+  bool servicestatus = false;
+  bool haspermission = false;
+  late LocationPermission permission;
+  late Position position;
+  String long = "", lat = "";
+  late StreamSubscription<Position> positionStream;
+
+  // @override
+  // void dispose() {
+  //   for (final controller in floorNoControllers) {
+  //     controller.clear();
+  //   }
+  //   for (final controller in shopsperfloorControllers) {
+  //     controller.clear();
+  //   }
+  //   for (final controller in rateControllers) {
+  //     controller.clear();
+  //   }
+  //   super.dispose();
+  // }
 
   @override
   void initState() {
@@ -38,11 +86,63 @@ class _HomePageState extends State<HomePage> {
     sending = false;
     success = false;
     msg = "";
+    checkGps();
     super.initState();
   }
 
-  Future<void> sendData() async {
+  checkGps() async {
+    servicestatus = await Geolocator.isLocationServiceEnabled();
+    if (servicestatus) {
+      permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          debugPrint('Location permissions are denied');
+        } else if (permission == LocationPermission.deniedForever) {
+          debugPrint("'Location permissions are permanently denied");
+        } else {
+          haspermission = true;
+        }
+      } else {
+        haspermission = true;
+      }
+
+      if (haspermission) {
+        setState(() {
+          //refresh the UI
+        });
+      }
+    } else {
+      debugPrint("GPS Service is not enabled, turn on GPS location");
+    }
+
+    setState(() {
+      //refresh the UI
+    });
+  }
+
+  getLocation() async {
+    position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    // print(position.longitude); //Output: 80.24599079
+    // print(position.latitude); //Output: 29.6593457
+
+    long = position.longitude.toString();
+    lat = position.latitude.toString();
+
+    debugPrint("$long, $lat");
+
+    setState(() {
+      geolong.text = long;
+      geolat.text = lat;
+    });
+  }
+
+  Future sendData() async {
     var res = await http.post(Uri.parse(phpurl), body: {
+      // jsonEncode(dataa)
+      //tp table
       "fullname": fullName.text,
       "regname": regName.text,
       "nationality": nationality.text,
@@ -53,18 +153,26 @@ class _HomePageState extends State<HomePage> {
       "busaddress": busAddress.text,
       "duedate": dueDate.text,
       "busregno": busRegNo.text,
-      "tin": tin.text,
+      "tpmeans": identification,
+      "tpnin": nin.text,
       "kadirsid": kadIRSId.text,
+      "areaoffice": areaoffice.text,
       "renttype": rentType,
       "agname": agName.text,
       "agaddress": agAddress.text,
       "agphone": agPhone.text,
-      "floors": dropdownPlaza,
-      "shops": shops.text,
-      "rate": rate.text,
-      // "housetype": dropdownHouses,
-      // "flats": flats.text,
-      // "rateh": rateH.text
+      "agmeans": agidentification,
+      "agnin": agNin.text,
+      //plaza table
+      "nooffloors": dropdownPlaza,
+      "totalshops": totalshops.text,
+
+      for (var i = 0; i < floorNoControllers.length; i++)
+        "floorno[]": (floorNoControllers[i].text),
+      for (var j = 0; j < shopsperfloorControllers.length; j++)
+        "shopsperfloor[]": (shopsperfloorControllers[j].text),
+      for (var i = 0; i < rateControllers.length; i++)
+        "rate[]": (rateControllers[i].text),
     }); //sending post request with header data
 
     if (res.statusCode == 200) {
@@ -88,18 +196,24 @@ class _HomePageState extends State<HomePage> {
         busAddress.text = '';
         dueDate.text = '';
         busRegNo.text = '';
-        tin.text = '';
+        areaoffice.text = '';
+        identification = "Select Means of Identification";
+        nin.text = '';
         kadIRSId.text = '';
         rentType = 'Select Type of Rent';
+
         agName.text = '';
         agAddress.text = '';
         agPhone.text = '';
+        agidentification = 'Select Means of Identification';
+        agNin.text = '';
+
         dropdownPlaza = 'No. of Floors';
-        shops.text = '';
-        rate.text = '';
-        // dropdownHouses = "House Type";
-        // flats.text = "";
-        // rateH.text = '';
+        totalshops.text = '';
+
+        floorNoFields.remove(_listView());
+        shopsperfloorFields.remove(_listView());
+        rateFields.remove(_listView());
 
         showMessage('Data Submitted Succesfully');
         //after write success, make fields empty
@@ -120,82 +234,119 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Future<void> sendData2() async {
-  //   var res = await http.post(Uri.parse(phpurl2), body: {
-  //     "floors": dropdownPlaza,
-  //     "shops": shops.text,
-  //     "rate": rate.text,
-  //     // "housetype": dropdownHouses,
-  //     // "flats": flats.text,
-  //     // "rateH": rateH.text
-  //   }); //sending post request with header data
+  Future sendDataHouses() async {
+    var res = await http.post(Uri.parse(phpurl2), body: {
+      "fullname": fullName.text,
+      "regname": regName.text,
+      "nationality": nationality.text,
+      "resaddress": resAddress.text,
+      "phone": phone.text,
+      "businesstype": dropdownValue,
+      "busname": busName.text,
+      "busaddress": busAddress.text,
+      "duedate": dueDate.text,
+      "busregno": busRegNo.text,
+      "tpmeans": identification,
+      "tpnin": nin.text,
+      "kadirsid": kadIRSId.text,
+      "areaoffice": areaoffice.text,
+      "renttype": rentType,
+      "agname": agName.text,
+      "agaddress": agAddress.text,
+      "agphone": agPhone.text,
+      "agmeans": agidentification,
+      "agnin": agNin.text,
+      //plaza table
+      "housetype": dropdownHouses,
+      "flats": flats.text,
+      "rateH": rateH.text,
+    }); //sending post request with header data
 
-  //   if (res.statusCode == 200) {
-  //     debugPrint(res.body); //print raw response on console
-  //     var data = json.decode(res.body); //decoding json to array
-  //     if (data["error"]) {
-  //       setState(() {
-  //         //refresh the UI when error is recieved from server
-  //         sending = false;
-  //         error = true;
-  //         msg = data["message"]; //error message from server
-  //       });
-  //     } else {
-  //       dropdownPlaza = 'No. of Floors';
-  //       shops.text = '';
-  //       rate.text = '';
-  //       // dropdownHouses = "House Type";
-  //       // flats.text = "";
-  //       // rateH.text = '';
+    if (res.statusCode == 200) {
+      debugPrint(res.body); //print raw response on console
+      var data = json.decode(res.body); //decoding json to array
+      if (data["error"]) {
+        setState(() {
+          //refresh the UI when error is recieved from server
+          sending = false;
+          error = true;
+          msg = data["message"]; //error message from server
+        });
+      } else {
+        fullName.text = '';
+        regName.text = '';
+        nationality.text = '';
+        resAddress.text = '';
+        phone.text = '';
+        dropdownValue = 'Business Type';
+        busName.text = '';
+        busAddress.text = '';
+        dueDate.text = '';
+        busRegNo.text = '';
+        areaoffice.text = '';
+        identification = "Select Means of Identification";
+        nin.text = '';
+        kadIRSId.text = '';
+        rentType = 'Select Type of Rent';
 
-  //       showMessage('Data Submitted Succesfully');
-  //       //after write success, make fields empty
+        agName.text = '';
+        agAddress.text = '';
+        agPhone.text = '';
+        agidentification = 'Select Means of Identification';
+        agNin.text = '';
 
-  //       setState(() {
-  //         sending = false;
-  //         success = true; //mark success and refresh UI with setState
-  //       });
-  //     }
-  //   } else {
-  //     //there is error
-  //     setState(() {
-  //       error = true;
-  //       msg = "Error during sending data.";
-  //       sending = false;
-  //       //mark error and refresh UI with setState
-  //     });
-  //   }
-  // }
+        dropdownHouses = 'House Type';
+        flats.text = '';
+        rateH.text = '';
+
+        showMessage('Data Submitted Succesfully');
+        //after write success, make fields empty
+
+        setState(() {
+          sending = false;
+          success = true; //mark success and refresh UI with setState
+        });
+      }
+    } else {
+      //there is error
+      setState(() {
+        error = true;
+        msg = "Error during sending data.";
+        sending = false;
+        //mark error and refresh UI with setState
+      });
+    }
+  }
 
   List<Step> stepList() => [
         Step(
-          state: _activeStepIndex <= 0 ? StepState.editing : StepState.complete,
-          isActive: _activeStepIndex >= 0,
+          state: activeStepIndex <= 0 ? StepState.editing : StepState.complete,
+          isActive: activeStepIndex >= 0,
           title: const Text('Landlord'),
           content: Column(
             children: [_form()],
           ),
         ),
         Step(
-          state: _activeStepIndex <= 1 ? StepState.editing : StepState.complete,
-          isActive: _activeStepIndex >= 1,
+          state: activeStepIndex <= 1 ? StepState.editing : StepState.complete,
+          isActive: activeStepIndex >= 1,
           title: const Text('Rent Type'),
           content: (rentType == "Plazas")
               ? _form2()
               : (rentType == "Houses")
                   ? _form3()
-                  : (rentType == "EventCenter")
-                      ? _formRent()
-                      : (rentType == "Schools")
-                          ? _formRent()
-                          : (rentType == "Hospitals")
-                              ? _formRent()
-                              : Container(),
+                  //     : (rentType == "EventCenter")
+                  //         ? _formRent()
+                  //         : (rentType == "Schools")
+                  //             ? _formRent()
+                  //             : (rentType == "Hospitals")
+                  //                 ? _formRent()
+                  : Container(),
         ),
         Step(
             state:
-                _activeStepIndex <= 2 ? StepState.editing : StepState.complete,
-            isActive: _activeStepIndex >= 2,
+                activeStepIndex <= 2 ? StepState.editing : StepState.complete,
+            isActive: activeStepIndex >= 2,
             title: const Text('Agent'),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -203,7 +354,7 @@ class _HomePageState extends State<HomePage> {
             )),
         Step(
             state: StepState.complete,
-            isActive: _activeStepIndex >= 3,
+            isActive: activeStepIndex >= 3,
             title: const Text('Confirm'),
             content: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -223,7 +374,7 @@ class _HomePageState extends State<HomePage> {
                   Text('Business Address: ${busAddress.text}'),
                   Text('Commencement Date: ${dueDate.text}'),
                   Text('Business Registration No: ${busRegNo.text}'),
-                  Text('Taxpayer Identification No(TIN): ${tin.text}'),
+                  Text('Taxpayer Identification No(TIN): ${nin.text}'),
                   Text('KadIRS ID: ${kadIRSId.text}'),
                   Text('Rent Type: $rentType'),
                   const Padding(padding: EdgeInsets.all(5.0)),
@@ -232,48 +383,18 @@ class _HomePageState extends State<HomePage> {
                   Text('Agent\'s Full Name: ${agName.text}'),
                   Text('Agent\'s Phone Number: ${agPhone.text}'),
                   Text('Agent\'s Residential Adress: ${agAddress.text}'),
+                  Text('No of floors: $dropdownPlaza'),
+                  Text('totalshops: ${totalshops.text}'),
+                  for (var i = 0; i < floorNoControllers.length; i++)
+                    Text("Floor: ${floorNoControllers[i].text}"),
+                  for (var i = 0; i < shopsperfloorControllers.length; i++)
+                    Text("Floor: ${shopsperfloorControllers[i].text}"),
+                  for (var i = 0; i < rateControllers.length; i++)
+                    Text("Floor: ${rateControllers[i].text}"),
                 ],
               ),
             )),
       ];
-
-  // File? image;
-  // File? _image;
-
-  // Future pickImage() async {
-  //   final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-  //   if (image != null) {
-  //     setState(() {
-  //       _image = File(basename(image.path));
-  //     });
-  //   }
-  //   // debugPrint(basename(_image));
-  // }
-
-  // void _pickFile() async {
-  // opens storage to pick files and the picked file or files
-  // are assigned into result and if no file is chosen result is null.
-  // you can also toggle "allowMultiple" true or false depending on your need
-  // FilePickerResult? result =
-  //     await FilePicker.platform.pickFiles(allowMultiple: false);
-
-  // if (result != null) {
-  //   PlatformFile file = result.files.first;
-
-  //   debugPrint(file.name);
-  // }
-
-  // if no file is picked
-  // if (result == null) return;
-
-  // String filename = result.files.first.name;
-  // // we will log the name, size and path of the
-  // // first picked file (if multiple are selected)
-  // // print(result.files.first.name);
-  // print(file.name);
-  // print(result.files.first.size);
-  // print(result.files.first.path);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -283,14 +404,14 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Stepper(
         type: StepperType.vertical,
-        currentStep: _activeStepIndex,
+        currentStep: activeStepIndex,
         steps: stepList(),
         onStepContinue: () {
-          if (_formKey[_activeStepIndex].currentState!.validate()) {
-            // _formKey[_activeStepIndex].currentState!.save();
-            if (_activeStepIndex < (stepList().length - 1)) {
+          if (_formKey[activeStepIndex].currentState!.validate()) {
+            //   // formKey[activeStepIndex].currentState!.save();
+            if (activeStepIndex < (stepList().length - 1)) {
               setState(() {
-                _activeStepIndex += 1;
+                activeStepIndex += 1;
               });
             } else {
               // print('Submited');
@@ -299,40 +420,58 @@ class _HomePageState extends State<HomePage> {
           }
         },
         onStepCancel: () {
-          if (_activeStepIndex == 0) {
+          if (activeStepIndex == 0) {
             return;
           }
 
           setState(() {
-            _activeStepIndex -= 1;
+            activeStepIndex -= 1;
           });
         },
         onStepTapped: (int index) {
           setState(() {
-            _activeStepIndex = index;
+            activeStepIndex = index;
           });
         },
         controlsBuilder: (BuildContext context, ControlsDetails controls) {
-          final isLastStep = _activeStepIndex == stepList().length - 1;
+          final isLastStep = activeStepIndex == stepList().length - 1;
           return Row(
             children: [
               Expanded(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(60)),
+                      minimumSize: const Size(500, 60),
+                      maximumSize: const Size(500, 60)),
+                  // style: ElevatedButton.styleFrom(
+                  //     primary: Colors.red, minimumSize: const Size(0, 60)),
                   onPressed: controls.onStepContinue,
                   child: (isLastStep)
-                      ? TextButton(
+                      ? TextButton.icon(
+                          icon: _isLoading
+                              ? const SizedBox(
+                                  height: 15.0,
+                                  width: 15.0,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text(''),
                           style: TextButton.styleFrom(
-                              minimumSize: const Size.fromHeight(60)),
+                              minimumSize: const Size(500, 60),
+                              maximumSize: const Size(500, 60)),
                           onPressed: () {
                             setState(() {
                               sending = true;
                             });
-                            sendData();
+                            rentType == 'Plazas'
+                                ? sendData()
+                                : rentType == 'Houses'
+                                    ? sendDataHouses()
+                                    : Container();
+                            // debugPrint(floorNoControllers[0].text);
                             // sendData2();
                           },
-                          child: const Text('Submit',
+                          label: const Text('Submit',
                               style: TextStyle(color: Colors.white)),
                         )
                       : const Text('Next'),
@@ -341,7 +480,7 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(
                 width: 10,
               ),
-              if (_activeStepIndex > 0)
+              if (activeStepIndex > 0)
                 Expanded(
                   child: TextButton(
                     style: TextButton.styleFrom(
@@ -397,8 +536,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          textField(
-              busAddress, "Business Address", TextInputType.streetAddress),
+          textField(busAddress, "Business Address", TextInputType.text),
           const SizedBox(
             height: 20,
           ),
@@ -410,11 +548,60 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          textField(tin, "Taxpayer Identification No", TextInputType.text),
+          // textField(tin, "Taxpayer Identification No", TextInputType.text),
+          dropDownID(),
+          const SizedBox(
+            height: 20,
+          ),
+          (identification == "TIN")
+              ? identiTin()
+              : (identification == "NIN")
+                  ? identiNin()
+                  : Container(),
           const SizedBox(
             height: 20,
           ),
           textField(kadIRSId, "KADIRS ID", TextInputType.text),
+          const SizedBox(
+            height: 20,
+          ),
+          textField(areaoffice, "Area Office", TextInputType.text),
+          const SizedBox(
+            height: 20,
+          ),
+          TextFormField(
+            decoration: decorate('longitude'),
+            controller: geolong,
+            enabled: false,
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          TextFormField(
+            decoration: decorate('latitude'),
+            controller: geolat,
+            enabled: false,
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(60, 60),
+              ),
+              onPressed: () async {
+                getLocation();
+                for (var i = 0; i < floorNoControllers.length; i++) {
+                  debugPrint(floorNoControllers[i].text);
+                }
+                for (var j = 0; j < shopsperfloorControllers.length; j++) {
+                  debugPrint(shopsperfloorControllers[j].text);
+                }
+                for (var i = 0; i < rateControllers.length; i++) {
+                  debugPrint((rateControllers[i].text));
+                }
+              },
+              child: const Text('Get Geo Location')),
           const SizedBox(
             height: 20,
           ),
@@ -445,52 +632,51 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
+          dropDownAgID(),
+          const SizedBox(
+            height: 20,
+          ),
+          (agidentification == "TIN")
+              ? agidentiTin()
+              : (agidentification == "NIN")
+                  ? agidentiNin()
+                  : Container(),
+          const SizedBox(
+            height: 20,
+          ),
         ],
       ),
     );
   }
 
-  Widget _formRent() {
-    return Form(
-      key: _formKey[1],
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: const <Widget>[Text("Under Construction")],
-      ),
-    );
-  }
+  // Widget _formRent() {
+  //   return Form(
+  //     key: formKey[1],
+  //     child: Column(
+  //       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //       children: const <Widget>[Text("Under Construction")],
+  //     ),
+  //   );
+  // }
 
   Widget _form2() {
     return Form(
       key: _formKey[1],
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
+        children: [
           dropDownPlaza(),
           const SizedBox(
             height: 20,
           ),
-          (dropdownPlaza == "1")
-              ? plazaInfo()
-              : (dropdownPlaza == "2")
-                  ? plazaInfo()
-                  : (dropdownPlaza == "3")
-                      ? plazaInfo()
-                      : (dropdownPlaza == "4")
-                          ? plazaInfo()
-                          : (dropdownPlaza == "5")
-                              ? plazaInfo()
-                              : (dropdownPlaza == "6")
-                                  ? plazaInfo()
-                                  : (dropdownPlaza == "7")
-                                      ? plazaInfo()
-                                      : (dropdownPlaza == "8")
-                                          ? plazaInfo()
-                                          : (dropdownPlaza == "9")
-                                              ? plazaInfo()
-                                              : (dropdownPlaza == "10")
-                                                  ? plazaInfo()
-                                                  : Container()
+          textField(totalshops, 'Total No. of Shops', TextInputType.text),
+          const SizedBox(
+            height: 20,
+          ),
+          _addTile(),
+          _listView(),
+          const SizedBox(
+            height: 20,
+          ),
         ],
       ),
     );
@@ -521,7 +707,7 @@ class _HomePageState extends State<HomePage> {
                                   : (dropdownHouses == "6-Bedroom")
                                       ? housesInfo()
                                       : (dropdownHouses == "10")
-                                          ? plazaInfo()
+                                          ? housesInfo()
                                           : Container()
         ],
       ),
@@ -545,7 +731,7 @@ class _HomePageState extends State<HomePage> {
           if (pickedDate != null) {
             // print(
             //     pickedDate); //pickedDate output format => 2021-03-10 00:00:00.000
-            String formattedDate = DateFormat('dd-MM-yyyy').format(pickedDate);
+            String formattedDate = DateFormat('yyyy-MM-dd').format(pickedDate);
             // print(
             //     formattedDate); //formatted date output using intl package =>  2021-03-16
             //you can implement different kind of Date Format here according to your requirement
@@ -561,6 +747,7 @@ class _HomePageState extends State<HomePage> {
   Widget dropDown() {
     return DropdownButtonFormField<String>(
         // validator: validateD,
+
         decoration: const InputDecoration(
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -697,6 +884,68 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget dropDownID() {
+    return DropdownButtonFormField<String>(
+      // validator: validateD,
+      decoration: const InputDecoration(
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+            borderSide: BorderSide(color: Colors.grey, width: 0.0),
+          ),
+          border: OutlineInputBorder()),
+      value: identification,
+      onChanged: (String? newValue) {
+        setState(() {
+          identification = newValue!;
+        });
+      },
+      items: <String>[
+        'Select Means of Identification',
+        'TIN',
+        'NIN',
+      ].map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget dropDownAgID() {
+    return DropdownButtonFormField<String>(
+      // validator: validateD,
+      decoration: const InputDecoration(
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+            borderSide: BorderSide(color: Colors.grey, width: 0.0),
+          ),
+          border: OutlineInputBorder()),
+      value: agidentification,
+      onChanged: (String? newValue) {
+        setState(() {
+          agidentification = newValue!;
+        });
+      },
+      items: <String>[
+        'Select Means of Identification',
+        'TIN',
+        'NIN',
+      ].map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   Future<dynamic> showMessage(String msg) async {
     showDialog(
       context: context,
@@ -715,6 +964,70 @@ class _HomePageState extends State<HomePage> {
           ],
         );
       },
+    );
+  }
+
+  Widget _addTile() {
+    return ListTile(
+      title: const Icon(Icons.add),
+      onTap: () {
+        final floorNo = TextEditingController();
+        final shopsperfloor = TextEditingController();
+        final rate = TextEditingController();
+
+        final floorNoField = _generateTextField(floorNo, "Floor");
+        final shopsperfloorField =
+            _generateTextField(shopsperfloor, "Shops On Floor");
+        final rateField = _generateTextField(rate, "Rate");
+
+        setState(() {
+          floorNoControllers.add(floorNo);
+          shopsperfloorControllers.add(shopsperfloor);
+          rateControllers.add(rate);
+          floorNoFields.add(floorNoField);
+          shopsperfloorFields.add(shopsperfloorField);
+          rateFields.add(rateField);
+        });
+      },
+    );
+  }
+
+  TextField _generateTextField(TextEditingController controller, String hint) {
+    return TextField(controller: controller, decoration: decorate(hint));
+  }
+
+  Widget _listView() {
+    final children = [
+      for (var i = 0; i < floorNoControllers.length; i++)
+        Container(
+          margin: const EdgeInsets.all(15),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              labelText: "Add Decription${i + 1}".toString(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+            child: Column(
+              children: [
+                floorNoFields[i],
+                const SizedBox(
+                  height: 20,
+                ),
+                shopsperfloorFields[i],
+                const SizedBox(
+                  height: 20,
+                ),
+                rateFields[i],
+              ],
+            ),
+          ),
+        ),
+    ];
+    return SingleChildScrollView(
+      child: Column(
+        children: children,
+      ),
     );
   }
 }
