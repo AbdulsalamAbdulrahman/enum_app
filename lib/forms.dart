@@ -122,10 +122,6 @@ InputDecoration decorate(String label) {
 Widget housesInfo() {
   return Column(
     children: <Widget>[
-      // textField(floors, 'Number of Floors', TextInputType.text),
-      // const SizedBox(
-      //   height: 20,
-      // ),
       textField(flats, 'No. of flats', TextInputType.text),
       const SizedBox(
         height: 20,
