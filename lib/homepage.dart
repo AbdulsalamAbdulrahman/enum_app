@@ -124,6 +124,7 @@ class _HomePageState extends State<HomePage> {
 
   getLocation() async {
     position = await Geolocator.getCurrentPosition(
+        forceAndroidLocationManager: true,
         desiredAccuracy: LocationAccuracy.high);
     // print(position.longitude); //Output: 80.24599079
     // print(position.latitude); //Output: 29.6593457
