@@ -19,7 +19,7 @@ class _SearchState extends State<Search> {
       var response = await http.get(url);
 
       final List<dynamic> dataList = jsonDecode(response.body);
-      List.generate(0, (index) => {print(dataList[index])});
+      // List.generate(0, (index) => {print(dataList[index])});
 
       setState(() {
         dataList1 = dataList;
