@@ -7,7 +7,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
-  const Login({Key? key, required String title}) : super(key: key);
+  const Login({Key? key}) : super(key: key);
 
   @override
   State<Login> createState() => _LoginState();
@@ -251,7 +251,7 @@ class _LoginState extends State<Login> {
       _isLoading = true;
     });
 
-    Uri url = Uri.parse('https://kadirstest.000webhostapp.com/login.php');
+    Uri url = Uri.parse('https://kadirs.withholdingtax.ng/mobile/login.php');
 
     var data = {'username': username, 'password': password};
 
@@ -260,11 +260,7 @@ class _LoginState extends State<Login> {
     var jsondata = json.decode(response.body);
 
     if (response.statusCode == 200) {
-      var jsondata = json.decode(response.body);
-      debugPrint(jsondata);
-
       if (!mounted) return;
-
       // Navigate to Home Screen
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => const HomePage()),

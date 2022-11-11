@@ -1,7 +1,9 @@
+import 'package:enum_app/homepage.dart';
+// import 'package:enum_app/login.dart';
+import 'package:enum_app/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:enum_app/splash_page.dart';
 
 void main() {
   // add these lines
@@ -26,7 +28,47 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      home: const SplashPage(),
+      home: const MyHomePage(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int _selectedScreenIndex = 0;
+  final List _screens = [
+    {"screen": const HomePage(), "title": "Home Page"},
+    {"screen": const Search(), "title": "Search Agent"}
+  ];
+
+  void _selectScreen(int index) {
+    setState(() {
+      _selectedScreenIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_screens[_selectedScreenIndex]["title"]),
+      ),
+      body: _screens[_selectedScreenIndex]["screen"],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedScreenIndex,
+        onTap: _selectScreen,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'HomePage'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.search), label: "Search Agent")
+        ],
+      ),
     );
   }
 }

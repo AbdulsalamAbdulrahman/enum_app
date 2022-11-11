@@ -51,6 +51,7 @@ class _HomePageState extends State<HomePage> {
   String dropdownHouses = 'House Type';
   String identification = 'NIN';
   String agidentification = 'NIN';
+  String areaofficedropdown = 'Select Area Office';
 
   late bool error, sending, success;
   late String msg;
@@ -124,7 +125,7 @@ class _HomePageState extends State<HomePage> {
 
   getLocation() async {
     position = await Geolocator.getCurrentPosition(
-        forceAndroidLocationManager: true,
+        // forceAndroidLocationManager: true,
         desiredAccuracy: LocationAccuracy.high);
     // print(position.longitude); //Output: 80.24599079
     // print(position.latitude); //Output: 29.6593457
@@ -331,16 +332,25 @@ class _HomePageState extends State<HomePage> {
 
   List<Step> stepList() => [
         Step(
-          state: activeStepIndex <= 0 ? StepState.editing : StepState.complete,
-          isActive: activeStepIndex >= 0,
-          title: const Text('Landlord'),
+            state:
+                activeStepIndex <= 0 ? StepState.editing : StepState.complete,
+            isActive: activeStepIndex >= 0,
+            title: const Text('Property Manager Info'),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [_form1()],
+            )),
+        Step(
+          state: activeStepIndex <= 1 ? StepState.editing : StepState.complete,
+          isActive: activeStepIndex >= 1,
+          title: const Text('Property Owner Info'),
           content: Column(
             children: [_form()],
           ),
         ),
         Step(
-          state: activeStepIndex <= 1 ? StepState.editing : StepState.complete,
-          isActive: activeStepIndex >= 1,
+          state: activeStepIndex <= 2 ? StepState.editing : StepState.complete,
+          isActive: activeStepIndex >= 2,
           title: const Text('Rent Type'),
           content: (rentType == "Plaza")
               ? _form2()
@@ -354,15 +364,6 @@ class _HomePageState extends State<HomePage> {
                   //                 ? _formRent()
                   : Container(),
         ),
-        Step(
-            state:
-                activeStepIndex <= 2 ? StepState.editing : StepState.complete,
-            isActive: activeStepIndex >= 2,
-            title: const Text('Agent'),
-            content: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [_form1()],
-            )),
         Step(
             state: StepState.complete,
             isActive: activeStepIndex >= 3,
@@ -410,9 +411,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home Page'),
-      ),
+      // appBar: AppBar(
+      //   title: const Text('Home Page'),
+      // ),
       body: Stepper(
         type: StepperType.vertical,
         currentStep: activeStepIndex,
@@ -580,7 +581,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          textField(areaoffice, "Area Office", TextInputType.text),
+          dropDownAreaOffice(),
           const SizedBox(
             height: 20,
           ),
@@ -948,6 +949,56 @@ class _HomePageState extends State<HomePage> {
       items: <String>[
         'NIN',
         'TIN',
+      ].map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget dropDownAreaOffice() {
+    return DropdownButtonFormField<String>(
+      // validator: validateD,
+      decoration: const InputDecoration(
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+            borderSide: BorderSide(color: Colors.grey, width: 0.0),
+          ),
+          border: OutlineInputBorder()),
+      value: areaofficedropdown,
+      onChanged: (String? newValue) {
+        setState(() {
+          areaofficedropdown = newValue!;
+        });
+      },
+      items: <String>[
+        'Select Area Office',
+        'Headquarter',
+        'Doka West',
+        'Doka East',
+        'Kakuri West',
+        'Kakuri East',
+        'Kawo',
+        'Tudun Wada',
+        'Sabon Tasha',
+        'Rigasa',
+        'Zaria',
+        'Samaru',
+        'Kafanchan',
+        'Kachia',
+        'Zonkwa',
+        'Turumku',
+        'Makarfi',
+        'Saminaka',
+        'Kaura',
+        'Soba',
+        'Kauru',
+        'Ikara',
       ].map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
