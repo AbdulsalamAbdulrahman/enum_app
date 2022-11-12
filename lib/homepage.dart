@@ -125,9 +125,9 @@ class _HomePageState extends State<HomePage> {
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          debugPrint('Location permissions are denied');
+          //debugPrint('Location permissions are denied');
         } else if (permission == LocationPermission.deniedForever) {
-          debugPrint("'Location permissions are permanently denied");
+          //debugPrint("'Location permissions are permanently denied");
         } else {
           haspermission = true;
         }
@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage> {
         });
       }
     } else {
-      debugPrint("GPS Service is not enabled, turn on GPS location");
+      //debugPrint("GPS Service is not enabled, turn on GPS location");
     }
 
     setState(() {
