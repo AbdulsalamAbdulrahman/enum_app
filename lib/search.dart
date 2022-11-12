@@ -1,3 +1,4 @@
+import 'package:enum_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -35,15 +36,15 @@ class _SearchState extends State<Search> {
     super.initState();
   }
 
-  void _runFilter(String enteredKeyword) {
+  void _runFilter(value) {
     List<dynamic> results = [];
-    if (enteredKeyword.isEmpty) {
+    if (value.isEmpty) {
       // if the search field is empty or only contains white-space, we'll display all users
       results = dataList1;
     } else {
       results = dataList1
           .where((user) =>
-              user["mail"].toLowerCase().contains(enteredKeyword.toLowerCase()))
+              user["fname"].toLowerCase().contains(value.toLowerCase()))
           .toList();
       // we use the toLowerCase() method to make it case-insensitive
     }
@@ -57,6 +58,9 @@ class _SearchState extends State<Search> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Search'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(10),
         child: Column(
@@ -82,12 +86,29 @@ class _SearchState extends State<Search> {
                         elevation: 4,
                         margin: const EdgeInsets.symmetric(vertical: 10),
                         child: ListTile(
+                            onTap: () =>
+                                Navigator.of(context).pushAndRemoveUntil(
+                                    MaterialPageRoute(
+                                        builder: (context) => MyHomePage(
+                                              fname: dataList1[index]['fname'],
+                                              phone: dataList1[index]['phone'],
+                                              mail: dataList1[index]['mail'],
+                                              role: dataList1[index]['role'],
+                                              nin: dataList1[index]['nin'],
+                                            )),
+                                    (route) => false),
                             leading: Text(dataList1[index]["role"],
                                 style: const TextStyle(
                                     fontSize: 24, color: Colors.white)),
-                            title: Text(dataList1[index]['mail'],
+                            title: Text('${dataList1[index]["fname"]}',
                                 style: const TextStyle(color: Colors.white)),
-                            subtitle: Text('${dataList1[index]["fname"]}',
+                            subtitle: Text(
+                                dataList1[index]['mail'] +
+                                        "\n" +
+                                        dataList1[index]['phone'] +
+                                        "\n" +
+                                        dataList1[index]['nin'] ??
+                                    "NA",
                                 style: const TextStyle(color: Colors.white))),
                       ),
                     )

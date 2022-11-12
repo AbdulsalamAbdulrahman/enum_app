@@ -25,18 +25,18 @@ TextEditingController nationality = TextEditingController(text: 'Nigeria');
 
 TextEditingController resAddress = TextEditingController();
 TextEditingController phone = TextEditingController();
-TextEditingController busName = TextEditingController();
+TextEditingController busType = TextEditingController();
 TextEditingController busAddress = TextEditingController();
 TextEditingController dueDate = TextEditingController();
 TextEditingController busRegNo = TextEditingController();
 // TextEditingController tin = TextEditingController();
 TextEditingController nin = TextEditingController();
 TextEditingController kadIRSId = TextEditingController();
-TextEditingController areaoffice = TextEditingController();
+// TextEditingController areaoffice = TextEditingController();
 
 //Agent
 TextEditingController agName = TextEditingController();
-TextEditingController agAddress = TextEditingController();
+TextEditingController agMail = TextEditingController();
 TextEditingController agPhone = TextEditingController();
 // TextEditingController agTin = TextEditingController();
 TextEditingController agNin = TextEditingController();
@@ -89,9 +89,9 @@ Widget textField(
 // }
 
 // String? validateD(value) {
-//   if (value == 'Business Type' || value == 'Select Type of Rent') {
+//   if (value == 'Select Type of Rent') {
 //     return "field is required";
-//   }5
+//   }
 //   return null;
 // }
 
@@ -135,17 +135,17 @@ Widget housesInfo() {
 }
 
 Widget identiTin() {
-  return textField(nin, 'TIN', TextInputType.text);
+  return textField(nin, 'Taxpayer Identification No', TextInputType.text);
 }
 
 Widget identiNin() {
-  return textField(nin, 'NIN', TextInputType.text);
+  return textField(nin, 'National Identification No', TextInputType.text);
 }
 
 Widget agidentiTin() {
-  return textField(agNin, 'TIN', TextInputType.text);
+  return textField(agNin, 'Taxpayer Identification No', TextInputType.text);
 }
 
 Widget agidentiNin() {
-  return textField(agNin, 'NIN', TextInputType.text);
+  return textField(agNin, 'National Identification No', TextInputType.text);
 }

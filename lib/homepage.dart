@@ -1,13 +1,26 @@
 import 'dart:convert';
 import 'dart:async';
 import 'package:enum_app/forms.dart';
+import 'package:enum_app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final String fname;
+  final String phone;
+  final String mail;
+  final String role;
+  final String nin;
+  const HomePage(
+      {Key? key,
+      required this.mail,
+      required this.fname,
+      required this.phone,
+      required this.role,
+      required this.nin})
+      : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -46,18 +59,20 @@ class _HomePageState extends State<HomePage> {
   int activeStepIndex = 0;
 
   String rentType = 'Select Type of Rent';
-  String dropdownValue = 'Individual';
+  String dropdownValueBusNature = 'Individual(Sole Proprietor)';
   String dropdownPlaza = 'No. of Floors';
   String dropdownHouses = 'House Type';
-  String identification = 'NIN';
-  String agidentification = 'NIN';
+  String identification = 'National Identification No';
+  String agidentification = 'National Identification No';
   String areaofficedropdown = 'Select Area Office';
+  String userrole = 'Agent';
 
   late bool error, sending, success;
   late String msg;
 
-  String phpurl = 'https://kadirs.withholdingtax.ng/write_mobile.php';
-  String phpurl2 = 'https://kadirs.withholdingtax.ng/write_mobile_house.php';
+  String phpurl = 'https://kadirs.withholdingtax.ng/mobile/write_mobile.php';
+  String phpurl2 =
+      'https://kadirs.withholdingtax.ng/mobile/write_mobile_house.php';
 
 //geo
   bool servicestatus = false;
@@ -87,6 +102,15 @@ class _HomePageState extends State<HomePage> {
     sending = false;
     success = false;
     msg = "";
+    agName.text = widget.fname;
+    agMail.text = widget.mail;
+    agPhone.text = widget.phone;
+    agNin.text = widget.nin;
+
+    if (widget.role.isNotEmpty) {
+      userrole = toBeginningOfSentenceCase(widget.role)!;
+    }
+    // print(toBeginningOfSentenceCase(widget.role));
     checkGps();
     super.initState();
   }
@@ -145,38 +169,44 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _isLoading = true;
     });
+    String data = '[';
+    for (var i = 0; i < floorNoControllers.length; i++) {
+      // "floorno[]": (floorNoControllers[i].text);
+      data = data + "{floorno:" + floorNoControllers[i].text + ",";
+      //"shopsperfloor[]": (shopsperfloorControllers[i].text);
+      data = data + "shopsperfloor:" + shopsperfloorControllers[i].text + ",";
+      //"rate[]": (rateControllers[i].text);
+      data = data + "rate:" + rateControllers[i].text + "},";
+    }
+    data = data + "]";
     var res = await http.post(Uri.parse(phpurl), body: {
+      "role": userrole.toLowerCase(),
       "fullname": fullName.text,
       "regname": regName.text,
       "nationality": nationality.text,
-      "resaddress": resAddress.text,
+      // "resaddress": resAddress.text,
       "phone": phone.text,
-      "businesstype": dropdownValue,
-      "busname": busName.text,
+      "natureofbus": dropdownValueBusNature,
+      "busType": busType.text,
       "busaddress": busAddress.text,
       "duedate": dueDate.text,
       "busregno": busRegNo.text,
       "tpmeans": identification,
       "tpnin": nin.text,
       "kadirsid": kadIRSId.text,
-      "areaoffice": areaoffice.text,
-      "renttype": rentType,
+      "areaoffice": areaofficedropdown,
+      "renttype": rentType.toLowerCase(),
       "agname": agName.text,
-      "agaddress": agAddress.text,
+      "agMail": agMail.text,
       "agphone": agPhone.text,
       "agmeans": agidentification,
       "agnin": agNin.text,
       //plaza table
       "nooffloors": dropdownPlaza,
       "totalshops": totalshops.text,
-
-      for (var i = 0; i < floorNoControllers.length; i++)
-        "floorno[]": (floorNoControllers[i].text),
-      for (var j = 0; j < shopsperfloorControllers.length; j++)
-        "shopsperfloor[]": (shopsperfloorControllers[j].text),
-      for (var i = 0; i < rateControllers.length; i++)
-        "rate[]": (rateControllers[i].text),
+      "data": data
     }); //sending post request with header data
+    print(data);
 
     if (res.statusCode == 200) {
       debugPrint(res.body); //print raw response on console
@@ -189,34 +219,31 @@ class _HomePageState extends State<HomePage> {
           msg = data["message"]; //error message from server
         });
       } else {
+        setState(() {});
         fullName.text = '';
         regName.text = '';
         nationality.text = 'Nigeria';
-        resAddress.text = '';
+        // resAddress.text = '';
         phone.text = '';
-        dropdownValue = 'Individual';
-        busName.text = '';
+        dropdownValueBusNature = 'Individual(Sole Proprietor)';
+        busType.text = '';
         busAddress.text = '';
         dueDate.text = '';
         busRegNo.text = '';
-        areaoffice.text = '';
-        identification = "NIN";
+        areaofficedropdown = 'Select Area Office';
+        identification = 'National Identification No';
         nin.text = '';
         kadIRSId.text = '';
         rentType = 'Select Type of Rent';
 
         agName.text = '';
-        agAddress.text = '';
+        agMail.text = '';
         agPhone.text = '';
-        agidentification = 'NIN';
+        agidentification = 'National Identification No';
         agNin.text = '';
 
         dropdownPlaza = 'No. of Floors';
         totalshops.text = '';
-
-        floorNoFields.remove(_listView());
-        shopsperfloorFields.remove(_listView());
-        rateFields.remove(_listView());
 
         showMessage('Data Submitted Succesfully');
         //after write success, make fields empty
@@ -245,27 +272,28 @@ class _HomePageState extends State<HomePage> {
       _isLoading = true;
     });
     var res = await http.post(Uri.parse(phpurl2), body: {
+    "role": userrole.toLowerCase(),
       "fullname": fullName.text,
       "regname": regName.text,
       "nationality": nationality.text,
-      "resaddress": resAddress.text,
+      // "resaddress": resAddress.text,
       "phone": phone.text,
-      "businesstype": dropdownValue,
-      "busname": busName.text,
+      "natureofbus": dropdownValueBusNature,
+      "busType": busType.text,
       "busaddress": busAddress.text,
       "duedate": dueDate.text,
       "busregno": busRegNo.text,
       "tpmeans": identification,
       "tpnin": nin.text,
       "kadirsid": kadIRSId.text,
-      "areaoffice": areaoffice.text,
-      "renttype": rentType,
+      "areaoffice": areaofficedropdown,
+      "renttype": rentType.toLowerCase(),
       "agname": agName.text,
-      "agaddress": agAddress.text,
+      "agMail": agMail.text,
       "agphone": agPhone.text,
       "agmeans": agidentification,
       "agnin": agNin.text,
-      //plaza table
+      //house table
       "housetype": dropdownHouses,
       "flats": flats.text,
       "rateH": rateH.text,
@@ -282,31 +310,31 @@ class _HomePageState extends State<HomePage> {
           msg = data["message"]; //error message from server
         });
       } else {
+        setState(() {});
         fullName.text = '';
         regName.text = '';
         nationality.text = 'Nigeria';
-        resAddress.text = '';
+        // resAddress.text = '';
         phone.text = '';
-        dropdownValue = 'Individual';
-        busName.text = '';
+        dropdownValueBusNature = 'Individual(Sole Proprietor)';
+        busType.text = '';
         busAddress.text = '';
         dueDate.text = '';
         busRegNo.text = '';
-        areaoffice.text = '';
-        identification = "NIN";
+        areaofficedropdown = 'Select Area Office';
+        identification = 'National Identification No';
         nin.text = '';
         kadIRSId.text = '';
         rentType = 'Select Type of Rent';
 
         agName.text = '';
-        agAddress.text = '';
+        agMail.text = '';
         agPhone.text = '';
-        agidentification = 'NIN';
+        agidentification = 'National Identification No';
         agNin.text = '';
 
-        dropdownHouses = 'House Type';
-        flats.text = '';
-        rateH.text = '';
+        dropdownPlaza = 'No. of Floors';
+        totalshops.text = '';
 
         showMessage('Data Submitted Succesfully');
         //after write success, make fields empty
@@ -379,10 +407,10 @@ class _HomePageState extends State<HomePage> {
                   Text('Taxpayer Name: ${fullName.text}'),
                   Text('Registered Name: ${regName.text}'),
                   Text('Nationality: ${nationality.text}'),
-                  Text('Residential Address: ${resAddress.text}'),
+                  // Text('Residential Address: ${resAddress.text}'),
                   Text('Phone Number: ${phone.text}'),
-                  Text('Business Type: $dropdownValue'),
-                  Text('Business Name: ${busName.text}'),
+                  Text('Nature of Business: $dropdownValueBusNature'),
+                  Text('Business Type: ${busType.text}'),
                   Text('Business Address: ${busAddress.text}'),
                   Text('Commencement Date: ${dueDate.text}'),
                   Text('Business Registration No: ${busRegNo.text}'),
@@ -394,15 +422,16 @@ class _HomePageState extends State<HomePage> {
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Text('Agent\'s Full Name: ${agName.text}'),
                   Text('Agent\'s Phone Number: ${agPhone.text}'),
-                  Text('Agent\'s Residential Adress: ${agAddress.text}'),
+                  Text('Agent\'s Mail: ${agMail.text}'),
                   Text('No of floors: $dropdownPlaza'),
                   Text('totalshops: ${totalshops.text}'),
                   for (var i = 0; i < floorNoControllers.length; i++)
                     Text("Floor: ${floorNoControllers[i].text}"),
                   for (var i = 0; i < shopsperfloorControllers.length; i++)
-                    Text("Floor: ${shopsperfloorControllers[i].text}"),
+                    Text(
+                        "Shops per floor: ${shopsperfloorControllers[i].text}"),
                   for (var i = 0; i < rateControllers.length; i++)
-                    Text("Floor: ${rateControllers[i].text}"),
+                    Text("rate: ${rateControllers[i].text}"),
                 ],
               ),
             )),
@@ -411,9 +440,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Home Page'),
-      // ),
+      appBar: AppBar(
+        title: const Text('Home Page'),
+      ),
       body: Stepper(
         type: StepperType.vertical,
         currentStep: activeStepIndex,
@@ -519,11 +548,11 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          textField(fullName, "Taxpayer Name", TextInputType.text),
+          textField(fullName, "Name of Property Owner", TextInputType.text),
           const SizedBox(
             height: 20,
           ),
-          textField(regName, "Registered Name", TextInputType.text),
+          textField(regName, "Registered Property Name", TextInputType.text),
           const SizedBox(
             height: 20,
           ),
@@ -535,11 +564,6 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          textField(
-              resAddress, "Residential Address", TextInputType.streetAddress),
-          const SizedBox(
-            height: 20,
-          ),
           textField(phone, "Phone Number", TextInputType.phone),
           const SizedBox(
             height: 20,
@@ -548,7 +572,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          textField(busName, "Business Name", TextInputType.text),
+          textField(busType, "Business Type", TextInputType.text),
           const SizedBox(
             height: 20,
           ),
@@ -556,22 +580,23 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          datetextField(),
-          const SizedBox(
-            height: 20,
-          ),
           textField(busRegNo, "Business Registered No", TextInputType.text),
           const SizedBox(
             height: 20,
           ),
+          datetextField(),
+          const SizedBox(
+            height: 20,
+          ),
+
           // textField(tin, "Taxpayer Identification No", TextInputType.text),
           dropDownID(),
           const SizedBox(
             height: 20,
           ),
-          (identification == "TIN")
+          (identification == 'Taxpayer Identification No')
               ? identiTin()
-              : (identification == "NIN")
+              : (identification == 'National Identification No')
                   ? identiNin()
                   : Container(),
           const SizedBox(
@@ -636,7 +661,14 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          textField(agName, "Agent's Full Name", TextInputType.text),
+          const SizedBox(
+            height: 5,
+          ),
+          dropDownUserRole(),
+          const SizedBox(
+            height: 20,
+          ),
+          textField(agName, "Full Name", TextInputType.text),
           const SizedBox(
             height: 20,
           ),
@@ -644,7 +676,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          textField(agAddress, "Agent's Address", TextInputType.streetAddress),
+          textField(agMail, "Email", TextInputType.emailAddress),
           const SizedBox(
             height: 20,
           ),
@@ -652,9 +684,9 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          (agidentification == "TIN")
+          (agidentification == 'Taxpayer Identification No')
               ? agidentiTin()
-              : (agidentification == "NIN")
+              : (agidentification == 'National Identification No')
                   ? agidentiNin()
                   : Container(),
           const SizedBox(
@@ -676,6 +708,7 @@ class _HomePageState extends State<HomePage> {
   // }
 
   Widget _form2() {
+    //plaza rent type form
     return Form(
       key: _formKey[1],
       child: Column(
@@ -765,21 +798,24 @@ class _HomePageState extends State<HomePage> {
         // validator: validateD,
 
         decoration: const InputDecoration(
-            label: Text('Select Business Type'),
+            label: Text('Select Nature of Business'),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.all(Radius.circular(20.0)),
               borderSide: BorderSide(color: Colors.grey, width: 0.0),
             ),
             border: OutlineInputBorder()),
-        value: dropdownValue,
+        value: dropdownValueBusNature,
         onChanged: (String? newValue) {
           setState(() {
-            dropdownValue = newValue!;
+            dropdownValueBusNature = newValue!;
           });
         },
         items: <String>[
-          'Individual',
-          'Group',
+          'Individual(Sole Proprietor)',
+          'Partnership',
+          'Company',
+          'Franchises',
+          'Cooperatives'
         ].map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
@@ -809,10 +845,16 @@ class _HomePageState extends State<HomePage> {
       items: <String>[
         'Select Type of Rent',
         'Plaza',
-        'Houses',
+        'House',
+        'Estate',
+        'Telecommunication mast',
+        'Farm',
+        'Restaurant',
+        'Garden/Bar',
         'Event Center',
         'Schools',
         'Hospitals',
+        'Others'
       ].map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -917,8 +959,8 @@ class _HomePageState extends State<HomePage> {
         });
       },
       items: <String>[
-        'NIN',
-        'TIN',
+        'National Identification No',
+        'Taxpayer Identification No',
       ].map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -935,6 +977,7 @@ class _HomePageState extends State<HomePage> {
     return DropdownButtonFormField<String>(
       // validator: validateD,
       decoration: const InputDecoration(
+          label: Text('Select Means of Identification'),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(20.0)),
             borderSide: BorderSide(color: Colors.grey, width: 0.0),
@@ -947,9 +990,38 @@ class _HomePageState extends State<HomePage> {
         });
       },
       items: <String>[
-        'NIN',
-        'TIN',
+        'National Identification No',
+        'Taxpayer Identification No',
       ].map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget dropDownUserRole() {
+    return DropdownButtonFormField<String>(
+      // validator: validateD,
+      decoration: const InputDecoration(
+          label: Text('Select User Role'),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+            borderSide: BorderSide(color: Colors.grey, width: 0.0),
+          ),
+          border: OutlineInputBorder()),
+      value: userrole,
+      onChanged: (String? newValue) {
+        setState(() {
+          userrole = newValue!;
+        });
+      },
+      items: <String>['Agent', 'Owner', 'Tenant']
+          .map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(
@@ -1022,7 +1094,14 @@ class _HomePageState extends State<HomePage> {
               child: const Text("OK"),
               onPressed: () {
                 Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => const HomePage()),
+                    MaterialPageRoute(
+                        builder: (context) => const MyHomePage(
+                              mail: '',
+                              fname: '',
+                              phone: '',
+                              role: '',
+                              nin: '',
+                            )),
                     (route) => false);
               },
             ),
@@ -1042,8 +1121,8 @@ class _HomePageState extends State<HomePage> {
 
         final floorNoField = _generateTextField(floorNo, "Floor");
         final shopsperfloorField =
-            _generateTextField(shopsperfloor, "Shops On Floor");
-        final rateField = _generateTextField(rate, "Rate");
+            _generateTextFieldN(shopsperfloor, "Shops On Floor");
+        final rateField = _generateTextFieldN(rate, "Rate");
 
         setState(() {
           floorNoControllers.add(floorNo);
@@ -1059,6 +1138,14 @@ class _HomePageState extends State<HomePage> {
 
   TextField _generateTextField(TextEditingController controller, String hint) {
     return TextField(controller: controller, decoration: decorate(hint));
+  }
+
+  TextField _generateTextFieldN(TextEditingController controller, String hint) {
+    return TextField(
+      controller: controller,
+      decoration: decorate(hint),
+      keyboardType: TextInputType.number,
+    );
   }
 
   Widget _listView() {

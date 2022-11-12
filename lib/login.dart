@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'package:enum_app/homepage.dart';
+// import 'package:enum_app/homepage.dart';
+import 'package:enum_app/main.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -263,7 +264,14 @@ class _LoginState extends State<Login> {
       if (!mounted) return;
       // Navigate to Home Screen
       Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const HomePage()),
+          MaterialPageRoute(
+              builder: (context) => const MyHomePage(
+                    mail: '',
+                    phone: '',
+                    fname: '',
+                    role: '',
+                    nin: '',
+                  )),
           (route) => false);
     } else {
       showDialog(

@@ -1,5 +1,6 @@
 import 'package:enum_app/homepage.dart';
 // import 'package:enum_app/login.dart';
+// import 'package:enum_app/login.dart';
 import 'package:enum_app/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,24 +29,63 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      home: const MyHomePage(),
+      home: const MyHomePage(
+        mail: '',
+        fname: '',
+        phone: '',
+        role: '',
+        nin: '',
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+  final String fname;
+  final String phone;
+  final String mail;
+  final String role;
+  final String nin;
+
+  const MyHomePage(
+      {Key? key,
+      required this.mail,
+      required this.fname,
+      required this.phone,
+      required this.role,
+      required this.nin})
+      : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // _MyHomePageState(String mail) {
+  //   maill = mail;
+  //   print('mail:' + maill);
+  // }
+
+  // static late String maill = '';
+
+  // // @override
+  // // void initState() {
+  // //   // maill = widget.mail;
+  // //   print('mail:' + maill);
+  // //   super.initState();
+  // // }
+
   int _selectedScreenIndex = 0;
-  final List _screens = [
-    {"screen": const HomePage(), "title": "Home Page"},
-    {"screen": const Search(), "title": "Search Agent"}
-  ];
+  List<Widget> _screens() => [
+        HomePage(
+          mail: widget.mail,
+          fname: widget.fname,
+          phone: widget.phone,
+          role: widget.role,
+          nin: widget.nin,
+        ),
+        const Search()
+      ];
 
   void _selectScreen(int index) {
     setState(() {
@@ -55,11 +95,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> screens = _screens();
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_screens[_selectedScreenIndex]["title"]),
-      ),
-      body: _screens[_selectedScreenIndex]["screen"],
+      body: screens[_selectedScreenIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedScreenIndex,
         onTap: _selectScreen,
