@@ -1,4 +1,5 @@
 import 'package:easy_splash_screen/easy_splash_screen.dart';
+import 'package:enum_app/login.dart';
 import 'package:flutter/material.dart';
 
 import 'main.dart';
@@ -36,10 +37,10 @@ class _SplashPageState extends State<SplashPage> {
         "Loading...",
         style: TextStyle(color: Colors.black54),
       ),
-      navigator: const MyHomePage(
-        mail: '', fname: '', nin: '', phone: '', role: '',
-        // title: '',
-      ),
+      navigator: const Login(
+          // mail: '', fname: '', nin: '', phone: '', role: '',
+          // title: '',
+          ),
       durationInSeconds: 3,
     );
   }

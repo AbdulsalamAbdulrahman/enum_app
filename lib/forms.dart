@@ -64,6 +64,10 @@ TextEditingController noshops = TextEditingController();
 TextEditingController flats = TextEditingController();
 TextEditingController rateH = TextEditingController();
 
+//others
+TextEditingController units = TextEditingController();
+TextEditingController rpu = TextEditingController();
+
 // geo
 TextEditingController geolong = TextEditingController();
 TextEditingController geolat = TextEditingController();
@@ -88,12 +92,12 @@ Widget textField(
 //   return null;
 // }
 
-// String? validateD(value) {
-//   if (value == 'Select Type of Rent') {
-//     return "field is required";
-//   }
-//   return null;
-// }
+String? validateD(value) {
+  if (value == 'Select Type of Rent') {
+    return "field is required";
+  }
+  return null;
+}
 
 InputDecoration decorate(String label) {
   return InputDecoration(
@@ -122,11 +126,11 @@ InputDecoration decorate(String label) {
 Widget housesInfo() {
   return Column(
     children: <Widget>[
-      textField(flats, 'No. of flats', TextInputType.text),
+      textField(flats, 'No. of flats', TextInputType.number),
       const SizedBox(
         height: 20,
       ),
-      textField(rateH, 'Rate', TextInputType.text),
+      textField(rateH, 'Rate', TextInputType.number),
       const SizedBox(
         height: 20,
       ),
@@ -135,17 +139,17 @@ Widget housesInfo() {
 }
 
 Widget identiTin() {
-  return textField(nin, 'Taxpayer Identification No', TextInputType.text);
+  return textField(nin, 'Taxpayer Identification No', TextInputType.number);
 }
 
 Widget identiNin() {
-  return textField(nin, 'National Identification No', TextInputType.text);
+  return textField(nin, 'National Identification No', TextInputType.number);
 }
 
 Widget agidentiTin() {
-  return textField(agNin, 'Taxpayer Identification No', TextInputType.text);
+  return textField(agNin, 'Taxpayer Identification No', TextInputType.number);
 }
 
 Widget agidentiNin() {
-  return textField(agNin, 'National Identification No', TextInputType.text);
+  return textField(agNin, 'National Identification No', TextInputType.number);
 }

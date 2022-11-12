@@ -2,6 +2,7 @@ import 'package:enum_app/homepage.dart';
 // import 'package:enum_app/login.dart';
 // import 'package:enum_app/login.dart';
 import 'package:enum_app/search.dart';
+import 'package:enum_app/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,13 +30,13 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      home: const MyHomePage(
-        mail: '',
-        fname: '',
-        phone: '',
-        role: '',
-        nin: '',
-      ),
+      home: const SplashPage(
+          // mail: '',
+          // fname: '',
+          // phone: '',
+          // role: '',
+          // nin: '',
+          ),
     );
   }
 }
