@@ -140,9 +140,6 @@ class _HomePageState extends State<HomePage> {
           //refresh the UI
         });
       }
-    } else if (!servicestatus) {
-      //open location settings
-      return locPop('Switch on Location Service');
     } else {
       debugPrint("GPS Service is not enabled, turn on GPS location");
     }

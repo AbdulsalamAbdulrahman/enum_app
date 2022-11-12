@@ -6,6 +6,8 @@ import 'package:enum_app/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:app_settings/app_settings.dart';
 
 void main() {
   // add these lines
@@ -68,6 +70,54 @@ class _MyHomePageState extends State<MyHomePage> {
   // }
 
   // static late String maill = '';
+  //geo
+  bool servicestatus = false;
+  bool haspermission = false;
+  late LocationPermission permission;
+  late Position position;
+  String long = "", lat = "";
+  // late StreamSubscription<Position> positionStream;
+
+  @override
+  void initState() {
+    checkGps();
+    super.initState();
+  }
+
+  checkGps() async {
+    servicestatus = await Geolocator.isLocationServiceEnabled();
+    if (servicestatus) {
+      permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          debugPrint('Location permissions are denied');
+        } else if (permission == LocationPermission.deniedForever) {
+          debugPrint("'Location permissions are permanently denied");
+        } else {
+          haspermission = true;
+        }
+      } else {
+        haspermission = true;
+      }
+
+      if (haspermission) {
+        setState(() {
+          //refresh the UI
+        });
+      }
+    } else if (!servicestatus) {
+      //open location settings
+      return locPop('Switch on Location Service');
+    } else {
+      debugPrint("GPS Service is not enabled, turn on GPS location");
+    }
+
+    setState(() {
+      //refresh the UI
+    });
+  }
 
   // // @override
   // // void initState() {
@@ -108,6 +158,26 @@ class _MyHomePageState extends State<MyHomePage> {
               icon: Icon(Icons.search), label: "Search Agent")
         ],
       ),
+    );
+  }
+
+  Future<dynamic> locPop(String msg) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(msg),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                AppSettings.openLocationSettings();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
