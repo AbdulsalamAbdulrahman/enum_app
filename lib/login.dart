@@ -4,7 +4,7 @@ import 'package:enum_app/main.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:connectivity_plus/connectivity_plus.dart';
+// import 'package:connectivity_plus/connectivity_plus.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
@@ -25,47 +25,7 @@ class _LoginState extends State<Login> {
   String username = '';
   String password = '';
 
-  @override
-  void initState() {
-    connection = Connectivity()
-        .onConnectivityChanged
-        .listen((ConnectivityResult result) {
-      // whenevery connection status is changed.
-      if (result == ConnectivityResult.none) {
-        //there is no any connection
-        setState(() {
-          isoffline = true;
-        });
-      } else if (result == ConnectivityResult.mobile) {
-        //connection is mobile data network
-        setState(() {
-          isoffline = false;
-        });
-      } else if (result == ConnectivityResult.wifi) {
-        //connection is from wifi
-        setState(() {
-          isoffline = false;
-        });
-      } else if (result == ConnectivityResult.ethernet) {
-        //connection is from wired connection
-        setState(() {
-          isoffline = false;
-        });
-      } else if (result == ConnectivityResult.bluetooth) {
-        //connection is from bluetooth threatening
-        setState(() {
-          isoffline = false;
-        });
-      }
-    });
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    connection!.cancel();
-    super.dispose();
-  }
+  String id = '';
 
   @override
   Widget build(BuildContext context) {
@@ -262,16 +222,18 @@ class _LoginState extends State<Login> {
 
     if (response.statusCode == 200) {
       if (!mounted) return;
+      String id = jsondata["id"];
+      // print(id);
+
+      setState(() {
+        id = id;
+      });
+
       // Navigate to Home Screen
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-              builder: (context) => const MyHomePage(
-                    mail: '',
-                    phone: '',
-                    fname: '',
-                    role: '',
-                    nin: '',
-                  )),
+              builder: (context) => MyHomePage(
+                  mail: '', phone: '', fname: '', role: '', nin: '', id: id)),
           (route) => false);
     } else {
       showDialog(

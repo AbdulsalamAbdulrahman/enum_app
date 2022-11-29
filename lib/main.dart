@@ -1,4 +1,5 @@
 import 'package:enum_app/homepage.dart';
+import 'package:enum_app/profile.dart';
 // import 'package:enum_app/login.dart';
 // import 'package:enum_app/login.dart';
 import 'package:enum_app/search.dart';
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: const SplashPage(
+          // id: '',
           // mail: '',
           // fname: '',
           // phone: '',
@@ -49,93 +51,34 @@ class MyHomePage extends StatefulWidget {
   final String mail;
   final String role;
   final String nin;
+  final String id;
 
-  const MyHomePage(
-      {Key? key,
-      required this.mail,
-      required this.fname,
-      required this.phone,
-      required this.role,
-      required this.nin})
-      : super(key: key);
+  const MyHomePage({
+    Key? key,
+    required this.mail,
+    required this.fname,
+    required this.phone,
+    required this.role,
+    required this.nin,
+    required this.id,
+  }) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // _MyHomePageState(String mail) {
-  //   maill = mail;
-  //   print('mail:' + maill);
-  // }
-
-  // static late String maill = '';
-  //geo
-//   bool servicestatus = false;
-//   bool haspermission = false;
-//   late LocationPermission permission;
-//   late Position position;
-//   String long = "", lat = "";
-//   // late StreamSubscription<Position> positionStream;
-
-//  @override
-//   void initState() {
-
-//     checkGps();
-//     super.initState();
-//   }
-//   checkGps() async {
-//     servicestatus = await Geolocator.isLocationServiceEnabled();
-//     if (servicestatus) {
-//       permission = await Geolocator.checkPermission();
-
-//       if (permission == LocationPermission.denied) {
-//         permission = await Geolocator.requestPermission();
-//         if (permission == LocationPermission.denied) {
-//           debugPrint('Location permissions are denied');
-//         } else if (permission == LocationPermission.deniedForever) {
-//           debugPrint("'Location permissions are permanently denied");
-//         } else {
-//           haspermission = true;
-//         }
-//       } else {
-//         haspermission = true;
-//       }
-
-//       if (haspermission) {
-//         setState(() {
-//           //refresh the UI
-//         });
-//       }
-//     } else if (!servicestatus) {
-//       //open location settings
-//       return locPop('Switch on Location Service');
-//     } else {
-//       debugPrint("GPS Service is not enabled, turn on GPS location");
-//     }
-
-//     setState(() {
-//       //refresh the UI
-//     });
-//   }
-
-  // // @override
-  // // void initState() {
-  // //   // maill = widget.mail;
-  // //   print('mail:' + maill);
-  // //   super.initState();
-  // // }
-
   int _selectedScreenIndex = 0;
   List<Widget> _screens() => [
         HomePage(
-          mail: widget.mail,
-          fname: widget.fname,
-          phone: widget.phone,
-          role: widget.role,
-          nin: widget.nin,
-        ),
-        const Search()
+            mail: widget.mail,
+            fname: widget.fname,
+            phone: widget.phone,
+            role: widget.role,
+            nin: widget.nin,
+            id: widget.id),
+        Search(id: widget.id),
+        Profile(id: widget.id)
       ];
 
   void _selectScreen(int index) {
@@ -155,7 +98,8 @@ class _MyHomePageState extends State<MyHomePage> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'HomePage'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.search), label: "Search Agent")
+              icon: Icon(Icons.search), label: "Search Agent"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );

@@ -5,7 +5,8 @@ import 'dart:convert';
 import 'dart:async';
 
 class Search extends StatefulWidget {
-  const Search({Key? key}) : super(key: key);
+  final String id;
+  const Search({Key? key, required this.id}) : super(key: key);
 
   @override
   State<Search> createState() => _SearchState();
@@ -95,6 +96,7 @@ class _SearchState extends State<Search> {
                                               mail: dataList1[index]['mail'],
                                               role: dataList1[index]['role'],
                                               nin: dataList1[index]['nin'],
+                                              id: widget.id,
                                             )),
                                     (route) => false),
                             leading: Text(dataList1[index]["role"],

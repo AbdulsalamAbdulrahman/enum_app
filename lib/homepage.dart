@@ -14,13 +14,16 @@ class HomePage extends StatefulWidget {
   final String mail;
   final String role;
   final String nin;
+  final String id;
+
   const HomePage(
       {Key? key,
       required this.mail,
       required this.fname,
       required this.phone,
       required this.role,
-      required this.nin})
+      required this.nin,
+      required this.id})
       : super(key: key);
 
   @override
@@ -37,25 +40,25 @@ class _HomePageState extends State<HomePage> {
     GlobalKey<FormState>()
   ];
 
-  void clearf() {
-    final floorNo = TextEditingController();
-    final shopsperfloor = TextEditingController();
-    final rate = TextEditingController();
+  // void clearf() {
+  //   final floorNo = TextEditingController();
+  //   final shopsperfloor = TextEditingController();
+  //   final rate = TextEditingController();
 
-    final floorNoField = _generateTextField(floorNo, "Floor");
-    final shopsperfloorField =
-        _generateTextField(shopsperfloor, "Shops On Floor");
-    final rateField = _generateTextField(rate, "Rate");
+  //   final floorNoField = _generateTextField(floorNo, "Floor");
+  //   final shopsperfloorField =
+  //       _generateTextField(shopsperfloor, "Shops On Floor");
+  //   final rateField = _generateTextField(rate, "Rate");
 
-    setState(() {
-      floorNoControllers.remove(floorNo);
-      shopsperfloorControllers.remove(shopsperfloor);
-      rateControllers.remove(rate);
-      floorNoFields.remove(floorNoField);
-      shopsperfloorFields.remove(shopsperfloorField);
-      rateFields.remove(rateField);
-    });
-  }
+  //   setState(() {
+  //     floorNoControllers.remove(floorNo);
+  //     shopsperfloorControllers.remove(shopsperfloor);
+  //     rateControllers.remove(rate);
+  //     floorNoFields.remove(floorNoField);
+  //     shopsperfloorFields.remove(shopsperfloorField);
+  //     rateFields.remove(rateField);
+  //   });
+  // }
 
   int activeStepIndex = 0;
 
@@ -66,6 +69,7 @@ class _HomePageState extends State<HomePage> {
   String identification = 'National Identification No';
   String agidentification = 'National Identification No';
   String areaofficedropdown = 'Select Area Office';
+  String noofestatecomp = 'Select Number of House';
   String userrole = 'Agent';
 
   late bool error, sending, success;
@@ -216,9 +220,14 @@ class _HomePageState extends State<HomePage> {
       //plaza table
       "nooffloors": dropdownPlaza,
       "totalshops": totalshops.text,
+
+      "id": widget.id,
+      "long": geolong.text,
+      "lat": geolat.text,
+
       "data": data
     }); //sending post request with header data
-    print(data);
+    // print(data);
 
     if (res.statusCode == 200) {
       debugPrint(res.body); //print raw response on console
@@ -279,6 +288,124 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future sendDataEstate() async {
+    setState(() {
+      _isLoading = true;
+    });
+    // String data = '[';
+    // for (var i = 0; i < floorNoControllers.length; i++) {
+    //   // "floorno[]": (floorNoControllers[i].text);
+    //   data = data + "{floorno:" + floorNoControllers[i].text + ",";
+    //   //"shopsperfloor[]": (shopsperfloorControllers[i].text);
+    //   data = data + "shopsperfloor:" + shopsperfloorControllers[i].text + ",";
+    //   //"rate[]": (rateControllers[i].text);
+    //   data = data + "rate:" + rateControllers[i].text + "},";
+    // }
+    // data = data + "]";
+    String data = '[';
+    data = "$data{housetype:${housetype.text},";
+    data = "${data}unit(s):${nohouse.text},";
+    data = "${data}rate:${rateEstate.text}},";
+    for (var i = 0; i < housetypeControllers.length; i++) {
+      // "floorno[]": (floorNoControllers[i].text);
+
+      data = "$data{housetype:${housetypeControllers[i].text},";
+      //"shopsperfloor[]": (shopsperfloorControllers[i].text);
+      data = "${data}unit(s):${nohouseControllers[i].text},";
+      //"rate[]": (rateControllers[i].text);
+      data = "${data}rate:${rateEstateControllers[i].text}},";
+    }
+    data = "$data]";
+    var res = await http.post(Uri.parse(phpurl), body: {
+      "role": userrole.toLowerCase(),
+      "fullname": fullName.text,
+      "regname": regName.text,
+      "nationality": nationality.text,
+      // "resaddress": resAddress.text,
+      "phone": phone.text,
+      "natureofbus": dropdownValueBusNature,
+      "busType": busType.text,
+      "busaddress": busAddress.text,
+      "duedate": dueDate.text,
+      "busregno": busRegNo.text,
+      "tpmeans": identification,
+      "tpnin": nin.text,
+      "kadirsid": kadIRSId.text,
+      "areaoffice": areaofficedropdown,
+      "renttype": rentType.toLowerCase(),
+      "agname": agName.text,
+      "agMail": agMail.text,
+      "agphone": agPhone.text,
+      "agmeans": agidentification,
+      "agnin": agNin.text,
+
+      "nooffloors": noofestatecomp,
+      "id": widget.id,
+      "long": geolong.text,
+      "lat": geolat.text,
+
+      //house
+
+      "data": data
+    }); //sending post request with header data
+    // print(widget.id + noofestatecomp + data);
+
+    if (res.statusCode == 200) {
+      debugPrint(res.body); //print raw response on console
+      var data = json.decode(res.body); //decoding json to array
+      if (data["error"]) {
+        setState(() {
+          //refresh the UI when error is recieved from server
+          sending = false;
+          error = true;
+          msg = data["message"]; //error message from server
+        });
+      } else {
+        setState(() {});
+        fullName.text = '';
+        regName.text = '';
+        nationality.text = 'Nigeria';
+        // resAddress.text = '';
+        phone.text = '';
+        dropdownValueBusNature = 'Individual(Sole Proprietor)';
+        busType.text = '';
+        busAddress.text = '';
+        dueDate.text = '';
+        busRegNo.text = '';
+        areaofficedropdown = 'Select Area Office';
+        identification = 'National Identification No';
+        nin.text = '';
+        kadIRSId.text = '';
+        rentType = 'Select Type of Rent';
+
+        agName.text = '';
+        agMail.text = '';
+        agPhone.text = '';
+        agidentification = 'National Identification No';
+        agNin.text = '';
+
+        showMessage('Data Submitted Succesfully');
+        //after write success, make fields empty
+
+        setState(() {
+          sending = false;
+          success = true; //mark success and refresh UI with setState
+        });
+      }
+    } else {
+      //there is error
+      setState(() {
+        error = true;
+        msg = "Error during sending data.";
+        sending = false;
+        //mark error and refresh UI with setState
+      });
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   Future sendDataHouses() async {
     setState(() {
       _isLoading = true;
@@ -305,6 +432,11 @@ class _HomePageState extends State<HomePage> {
       "agphone": agPhone.text,
       "agmeans": agidentification,
       "agnin": agNin.text,
+
+      "id": widget.id,
+      "long": geolong.text,
+      "lat": geolat.text,
+
       //house table
       "housetype": dropdownHouses,
       "flats": flats.text,
@@ -396,6 +528,10 @@ class _HomePageState extends State<HomePage> {
       "agphone": agPhone.text,
       "agmeans": agidentification,
       "agnin": agNin.text,
+
+      "id": widget.id,
+      "long": geolong.text,
+      "lat": geolat.text,
       //house table
       "units": units.text,
       "rpu": rpu.text,
@@ -486,21 +622,22 @@ class _HomePageState extends State<HomePage> {
               ? _form2()
               : (rentType == "House")
                   ? _form3()
-                  : (rentType == "Event Center" ||
-                          rentType == "Estate" ||
-                          rentType == "Telecommunication mast" ||
-                          rentType == "Farm" ||
-                          rentType == "Restaurant" ||
-                          rentType == "Garden/Bar" ||
-                          rentType == "School" ||
-                          rentType == "Hospital" ||
-                          rentType == "Others")
-                      ? _formOthers()
-                      //         : (rentType == "Schools")
-                      //             ? _formRent()
-                      //             : (rentType == "Hospitals")
-                      //                 ? _formRent()
-                      : Container(),
+                  : (rentType == "Estate/Compound")
+                      ? estatecomp()
+                      : (rentType == "Event Center" ||
+                              rentType == "Telecommunication mast" ||
+                              rentType == "Farm" ||
+                              rentType == "Restaurant" ||
+                              rentType == "Garden/Bar" ||
+                              rentType == "School" ||
+                              rentType == "Hospital" ||
+                              rentType == "Others")
+                          ? _formOthers()
+                          //         : (rentType == "Schools")
+                          //             ? _formRent()
+                          //             : (rentType == "Hospitals")
+                          //                 ? _formRent()
+                          : Container(),
         ),
         Step(
             state: StepState.complete,
@@ -618,18 +755,19 @@ class _HomePageState extends State<HomePage> {
                                 ? sendData()
                                 : rentType == 'House'
                                     ? sendDataHouses()
-                                    : rentType == "Event Center" ||
-                                            rentType == "Estate" ||
-                                            rentType ==
-                                                "Telecommunication mast" ||
-                                            rentType == "Farm" ||
-                                            rentType == "Restaurant" ||
-                                            rentType == "Garden/Bar" ||
-                                            rentType == "School" ||
-                                            rentType == "Hospital" ||
-                                            rentType == "Others"
-                                        ? sendDataOthers()
-                                        : Container();
+                                    : rentType == "Estate/Compound"
+                                        ? sendDataEstate()
+                                        : rentType == "Event Center" ||
+                                                rentType ==
+                                                    "Telecommunication mast" ||
+                                                rentType == "Farm" ||
+                                                rentType == "Restaurant" ||
+                                                rentType == "Garden/Bar" ||
+                                                rentType == "School" ||
+                                                rentType == "Hospital" ||
+                                                rentType == "Others"
+                                            ? sendDataOthers()
+                                            : Container();
                             // debugPrint(floorNoControllers[0].text);
                             // sendData2();
                           },
@@ -769,7 +907,7 @@ class _HomePageState extends State<HomePage> {
           ),
           dropDown1(),
           const SizedBox(
-            height: 20,
+            height: 10,
           ),
         ],
       ),
@@ -988,7 +1126,7 @@ class _HomePageState extends State<HomePage> {
         'Select Type of Rent',
         'Plaza',
         'House',
-        'Estate',
+        'Estate/Compound',
         'Telecommunication mast',
         'Farm',
         'Restaurant',
@@ -1036,6 +1174,55 @@ class _HomePageState extends State<HomePage> {
         '8',
         '9',
         '10',
+      ].map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget dropDownEstateComp() {
+    return DropdownButtonFormField<String>(
+      // validator: validateD,
+      decoration: const InputDecoration(
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20.0)),
+            borderSide: BorderSide(color: Colors.grey, width: 0.0),
+          ),
+          border: OutlineInputBorder()),
+      value: noofestatecomp,
+      onChanged: (String? newValue) {
+        setState(() {
+          noofestatecomp = newValue!;
+        });
+      },
+      items: <String>[
+        'Select Number of House',
+        '1',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7',
+        '8',
+        '9',
+        '10',
+        '11',
+        '12',
+        '13',
+        '14',
+        '15',
+        '16',
+        '17',
+        '18',
+        '19',
+        '20',
       ].map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -1238,12 +1425,13 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                        builder: (context) => const MyHomePage(
+                        builder: (context) => MyHomePage(
                               mail: '',
                               fname: '',
                               phone: '',
                               role: '',
                               nin: '',
+                              id: widget.id,
                             )),
                     (route) => false);
               },
@@ -1251,6 +1439,37 @@ class _HomePageState extends State<HomePage> {
           ],
         );
       },
+    );
+  }
+
+  Widget estatecomp() {
+    return Form(
+      key: _formKey[2],
+      child: Column(
+        children: <Widget>[
+          dropDownEstateComp(),
+          const SizedBox(
+            height: 20,
+          ),
+          textField(housetype, 'House Type', TextInputType.text),
+          const SizedBox(
+            height: 20,
+          ),
+          textField(nohouse, 'Unit(s)', TextInputType.number),
+          const SizedBox(
+            height: 20,
+          ),
+          textField(rateEstate, 'Rate', TextInputType.number),
+          const SizedBox(
+            height: 20,
+          ),
+          _addTile2(),
+          _listView2(),
+          const SizedBox(
+            height: 20,
+          ),
+        ],
+      ),
     );
   }
 
@@ -1291,6 +1510,34 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _addTile2() {
+    return ListTile(
+      title: const Icon(Icons.add),
+      onTap: () {
+        final housetype = TextEditingController();
+        final nohouse = TextEditingController();
+        final rateEstate = TextEditingController();
+
+        final housetypeField = _generateTextField2(housetype, "House Type");
+        final nohouseField = _generateTextFieldN(nohouse, "Unit(s)");
+        final rateEstateField = _generateTextFieldN(rateEstate, "Rate");
+
+        setState(() {
+          housetypeControllers.add(housetype);
+          nohouseControllers.add(nohouse);
+          rateEstateControllers.add(rateEstate);
+          housetypeFields.add(housetypeField);
+          nohouseFields.add(nohouseField);
+          rateEstateFields.add(rateEstateField);
+        });
+      },
+    );
+  }
+
+  TextField _generateTextField2(TextEditingController controller, String hint) {
+    return TextField(controller: controller, decoration: decorate(hint));
+  }
+
   Widget _listView() {
     final children = [
       for (var i = 0; i < floorNoControllers.length; i++)
@@ -1314,6 +1561,41 @@ class _HomePageState extends State<HomePage> {
                   height: 20,
                 ),
                 rateFields[i],
+              ],
+            ),
+          ),
+        ),
+    ];
+    return SingleChildScrollView(
+      child: Column(
+        children: children,
+      ),
+    );
+  }
+
+  Widget _listView2() {
+    final children = [
+      for (var i = 0; i < housetypeControllers.length; i++)
+        Container(
+          margin: const EdgeInsets.all(15),
+          child: InputDecorator(
+            decoration: InputDecoration(
+              labelText: "Add Description${i + 2}".toString(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+            child: Column(
+              children: [
+                housetypeFields[i],
+                const SizedBox(
+                  height: 20,
+                ),
+                nohouseFields[i],
+                const SizedBox(
+                  height: 20,
+                ),
+                rateEstateFields[i],
               ],
             ),
           ),

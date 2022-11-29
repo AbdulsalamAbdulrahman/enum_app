@@ -14,6 +14,14 @@ final List<TextField> shopsperfloorFields = [];
 final List<TextEditingController> rateControllers = [];
 final List<TextField> rateFields = [];
 
+//dynamic textfields 2
+final List<TextEditingController> housetypeControllers = [];
+final List<TextField> housetypeFields = [];
+final List<TextEditingController> nohouseControllers = [];
+final List<TextField> nohouseFields = [];
+final List<TextEditingController> rateEstateControllers = [];
+final List<TextField> rateEstateFields = [];
+
 // final floorNo = floorNoControllers[1].text;
 // final shopsperfloor = shopsperfloorControllers[1].text;
 // final rate = rateControllers[1].text;
@@ -63,6 +71,11 @@ TextEditingController noshops = TextEditingController();
 //houses info
 TextEditingController flats = TextEditingController();
 TextEditingController rateH = TextEditingController();
+
+//estate/compound
+TextEditingController housetype = TextEditingController();
+TextEditingController nohouse = TextEditingController();
+TextEditingController rateEstate = TextEditingController();
 
 //others
 TextEditingController units = TextEditingController();
