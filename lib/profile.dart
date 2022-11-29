@@ -1,14 +1,38 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'dart:async';
+import 'package:http/http.dart' as http;
 
 class Profile extends StatefulWidget {
   final String id;
-  const Profile({super.key, required this.id});
+  final String firstname;
+  final String lastname;
+  final String team;
+  final String ephone;
+
+  const Profile(
+      {super.key,
+      required this.id,
+      required this.firstname,
+      required this.lastname,
+      required this.team,
+      required this.ephone});
 
   @override
   State<Profile> createState() => _ProfileState();
 }
 
 class _ProfileState extends State<Profile> {
+  String daily = '';
+  String monthly = '';
+  String total = '';
+
+  @override
+  void initState() {
+    counter();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,11 +59,11 @@ class _ProfileState extends State<Profile> {
                 Row(
                   // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    buildButton(context, '4', 'Daily Submission'),
+                    buildButton(context, daily, 'Daily Submission'),
                     buildDivider(),
-                    buildButton(context, '35', 'Monthly Syubmission'),
+                    buildButton(context, monthly, 'Monthly Submission'),
                     buildDivider(),
-                    buildButton(context, '50', 'Total'),
+                    buildButton(context, total, 'Total'),
                   ],
                 )
               ],
@@ -83,16 +107,48 @@ class _ProfileState extends State<Profile> {
       );
 
   Widget buildName() => Column(
-        children: const [
+        children: [
           Text(
-            'Abdulsalam Abdulrahman',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+            '${widget.firstname} ${widget.lastname}',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
-            'admin',
-            style: TextStyle(color: Colors.grey),
+            widget.team,
+            style: const TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            widget.ephone,
+            style: const TextStyle(color: Colors.grey),
           )
         ],
       );
+
+  Future counter() async {
+    Uri url =
+        Uri.parse('https://withholdingtax.ng/kadirs/mobile/daily_sub.php');
+
+    var data = {
+      'id': widget.id,
+    };
+
+    var response = await http.post(
+      url,
+      body: json.encode(data),
+    );
+    var jsondata = json.decode(response.body);
+
+    if (response.statusCode == 200) {
+      int dailyJson = jsondata["Daily"];
+      int monthlyJson = jsondata["Monthly"];
+      int totalJson = jsondata["Total"];
+
+      setState(() {
+        daily = dailyJson.toString();
+        monthly = monthlyJson.toString();
+        total = totalJson.toString();
+      });
+    }
+  }
 }

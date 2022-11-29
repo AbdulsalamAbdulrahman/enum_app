@@ -15,6 +15,10 @@ class HomePage extends StatefulWidget {
   final String role;
   final String nin;
   final String id;
+  final String firstname;
+  final String lastname;
+  final String team;
+  final String ephone;
 
   const HomePage(
       {Key? key,
@@ -23,7 +27,11 @@ class HomePage extends StatefulWidget {
       required this.phone,
       required this.role,
       required this.nin,
-      required this.id})
+      required this.id,
+      required this.firstname,
+      required this.lastname,
+      required this.team,
+      required this.ephone})
       : super(key: key);
 
   @override
@@ -1432,6 +1440,10 @@ class _HomePageState extends State<HomePage> {
                               role: '',
                               nin: '',
                               id: widget.id,
+                              firstname: widget.firstname,
+                              lastname: widget.lastname,
+                              team: widget.team,
+                              ephone: widget.ephone,
                             )),
                     (route) => false);
               },

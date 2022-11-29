@@ -52,6 +52,10 @@ class MyHomePage extends StatefulWidget {
   final String role;
   final String nin;
   final String id;
+  final String firstname;
+  final String lastname;
+  final String team;
+  final String ephone;
 
   const MyHomePage({
     Key? key,
@@ -61,6 +65,10 @@ class MyHomePage extends StatefulWidget {
     required this.role,
     required this.nin,
     required this.id,
+    required this.firstname,
+    required this.lastname,
+    required this.team,
+    required this.ephone,
   }) : super(key: key);
 
   @override
@@ -71,14 +79,31 @@ class _MyHomePageState extends State<MyHomePage> {
   int _selectedScreenIndex = 0;
   List<Widget> _screens() => [
         HomePage(
-            mail: widget.mail,
-            fname: widget.fname,
-            phone: widget.phone,
-            role: widget.role,
-            nin: widget.nin,
-            id: widget.id),
-        Search(id: widget.id),
-        Profile(id: widget.id)
+          mail: widget.mail,
+          fname: widget.fname,
+          phone: widget.phone,
+          role: widget.role,
+          nin: widget.nin,
+          id: widget.id,
+          firstname: widget.firstname,
+          lastname: widget.lastname,
+          team: widget.team,
+          ephone: widget.ephone,
+        ),
+        Search(
+          id: widget.id,
+          firstname: widget.firstname,
+          lastname: widget.lastname,
+          team: widget.team,
+          ephone: widget.ephone,
+        ),
+        Profile(
+          id: widget.id,
+          firstname: widget.firstname,
+          lastname: widget.lastname,
+          team: widget.team,
+          ephone: widget.ephone,
+        )
       ];
 
   void _selectScreen(int index) {

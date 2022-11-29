@@ -6,7 +6,19 @@ import 'dart:async';
 
 class Search extends StatefulWidget {
   final String id;
-  const Search({Key? key, required this.id}) : super(key: key);
+  final String firstname;
+  final String lastname;
+  final String team;
+  final String ephone;
+
+  const Search(
+      {Key? key,
+      required this.id,
+      required this.firstname,
+      required this.lastname,
+      required this.team,
+      required this.ephone})
+      : super(key: key);
 
   @override
   State<Search> createState() => _SearchState();
@@ -45,7 +57,7 @@ class _SearchState extends State<Search> {
     } else {
       results = dataList1
           .where((user) =>
-              user["fname"].toLowerCase().contains(value.toLowerCase()))
+              user["phone"].toLowerCase().contains(value.toLowerCase()))
           .toList();
       // we use the toLowerCase() method to make it case-insensitive
     }
@@ -60,7 +72,7 @@ class _SearchState extends State<Search> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search'),
+        title: const Text('Search Page'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
@@ -72,7 +84,8 @@ class _SearchState extends State<Search> {
             TextField(
               onChanged: (value) => _runFilter(value),
               decoration: const InputDecoration(
-                  labelText: 'Search', suffixIcon: Icon(Icons.search)),
+                  labelText: 'Search Phone Number',
+                  suffixIcon: Icon(Icons.search)),
             ),
             const SizedBox(
               height: 20,
@@ -97,6 +110,10 @@ class _SearchState extends State<Search> {
                                               role: dataList1[index]['role'],
                                               nin: dataList1[index]['nin'],
                                               id: widget.id,
+                                              firstname: widget.firstname,
+                                              lastname: widget.lastname,
+                                              team: widget.team,
+                                              ephone: widget.ephone,
                                             )),
                                     (route) => false),
                             leading: Text(dataList1[index]["role"],

@@ -26,6 +26,10 @@ class _LoginState extends State<Login> {
   String password = '';
 
   String id = '';
+  String firstname = '';
+  String lastname = '';
+  String team = '';
+  String ephone = '';
 
   @override
   Widget build(BuildContext context) {
@@ -223,6 +227,11 @@ class _LoginState extends State<Login> {
     if (response.statusCode == 200) {
       if (!mounted) return;
       String id = jsondata["id"];
+      String firstname = jsondata["fname"];
+      String lastname = jsondata["lname"];
+      String team = jsondata["team"];
+      String ephone = jsondata["phone"];
+
       // print(id);
 
       setState(() {
@@ -232,8 +241,19 @@ class _LoginState extends State<Login> {
       // Navigate to Home Screen
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-              builder: (context) => MyHomePage(
-                  mail: '', phone: '', fname: '', role: '', nin: '', id: id)),
+            builder: (context) => MyHomePage(
+              mail: '',
+              phone: '',
+              fname: '',
+              role: '',
+              nin: '',
+              id: id,
+              firstname: firstname,
+              lastname: lastname,
+              team: team,
+              ephone: ephone,
+            ),
+          ),
           (route) => false);
     } else {
       showDialog(
