@@ -23,13 +23,14 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  String daily = '';
-  String monthly = '';
-  String total = '';
+  String daily = '0';
+  String monthly = '0';
+  String total = '0';
+
+  bool _isLoading = false;
 
   @override
   void initState() {
-    counter();
     super.initState();
   }
 
@@ -65,9 +66,11 @@ class _ProfileState extends State<Profile> {
                     buildDivider(),
                     buildButton(context, total, 'Total'),
                   ],
-                )
+                ),
+                const SizedBox(height: 44),
               ],
-            )
+            ),
+            button()
           ],
         ),
       ),
@@ -126,6 +129,9 @@ class _ProfileState extends State<Profile> {
       );
 
   Future counter() async {
+    setState(() {
+      _isLoading = true;
+    });
     Uri url =
         Uri.parse('https://withholdingtax.ng/kadirs/mobile/daily_sub.php');
 
@@ -150,5 +156,33 @@ class _ProfileState extends State<Profile> {
         total = totalJson.toString();
       });
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
+
+  Widget button() => Padding(
+        padding: const EdgeInsets.all(20),
+        child: ElevatedButton.icon(
+            icon: _isLoading
+                ? const SizedBox(
+                    height: 15.0,
+                    width: 15.0,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text(''),
+            label: Text(
+              _isLoading ? '' : 'Request Submission Info',
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            ),
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(500, 50),
+              maximumSize: const Size(500, 50),
+            ),
+            onPressed: () async {
+              _isLoading ? null : counter();
+            }),
+      );
 }

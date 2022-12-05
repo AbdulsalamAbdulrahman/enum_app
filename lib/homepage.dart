@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:app_settings/app_settings.dart';
 
 class HomePage extends StatefulWidget {
   final String fname;
@@ -48,26 +47,6 @@ class _HomePageState extends State<HomePage> {
     GlobalKey<FormState>()
   ];
 
-  // void clearf() {
-  //   final floorNo = TextEditingController();
-  //   final shopsperfloor = TextEditingController();
-  //   final rate = TextEditingController();
-
-  //   final floorNoField = _generateTextField(floorNo, "Floor");
-  //   final shopsperfloorField =
-  //       _generateTextField(shopsperfloor, "Shops On Floor");
-  //   final rateField = _generateTextField(rate, "Rate");
-
-  //   setState(() {
-  //     floorNoControllers.remove(floorNo);
-  //     shopsperfloorControllers.remove(shopsperfloor);
-  //     rateControllers.remove(rate);
-  //     floorNoFields.remove(floorNoField);
-  //     shopsperfloorFields.remove(shopsperfloorField);
-  //     rateFields.remove(rateField);
-  //   });
-  // }
-
   int activeStepIndex = 0;
 
   String rentType = 'Select Type of Rent';
@@ -87,6 +66,7 @@ class _HomePageState extends State<HomePage> {
   String phpurl2 =
       'https://kadirs.withholdingtax.ng/mobile/write_mobile_house.php';
   String phpurl3 = 'https://kadirs.withholdingtax.ng/mobile/write_others.php';
+  String phpurl4 = 'https://kadirs.withholdingtax.ng/mobile/write_others2.php';
 
 //geo
   bool servicestatus = false;
@@ -95,20 +75,6 @@ class _HomePageState extends State<HomePage> {
   late Position position;
   String long = "", lat = "";
   late StreamSubscription<Position> positionStream;
-
-  // @override
-  // void dispose() {
-  //   for (final controller in floorNoControllers) {
-  //     controller.clear();
-  //   }
-  //   for (final controller in shopsperfloorControllers) {
-  //     controller.clear();
-  //   }
-  //   for (final controller in rateControllers) {
-  //     controller.clear();
-  //   }
-  //   super.dispose();
-  // }
 
   @override
   void initState() {
@@ -274,6 +240,19 @@ class _HomePageState extends State<HomePage> {
         dropdownPlaza = 'No. of Floors';
         totalshops.text = '';
 
+        geolong.text = '';
+        geolat.text = '';
+
+        for (var i = 0; i < floorNoControllers.length; i++) {
+          floorNoControllers[i].text = '';
+        }
+        for (var j = 0; j < shopsperfloorControllers.length; j++) {
+          shopsperfloorControllers[j].text = '';
+        }
+        for (var i = 0; i < rateControllers.length; i++) {
+          rateControllers[i].text = '';
+        }
+
         showMessage('Data Submitted Succesfully');
         //after write success, make fields empty
 
@@ -392,6 +371,25 @@ class _HomePageState extends State<HomePage> {
         agidentification = 'National Identification No';
         agNin.text = '';
 
+        noofestatecomp = 'Select Number of House';
+
+        housetype.text = '';
+        nohouse.text = '';
+        rateEstate.text = '';
+
+        geolong.text = '';
+        geolat.text = '';
+
+        for (var i = 0; i < housetypeControllers.length; i++) {
+          housetypeControllers[i].text = '';
+        }
+        for (var j = 0; j < nohouseControllers.length; j++) {
+          nohouseControllers[j].text = '';
+        }
+        for (var i = 0; i < rateEstateControllers.length; i++) {
+          rateEstateControllers[i].text = '';
+        }
+
         showMessage('Data Submitted Succesfully');
         //after write success, make fields empty
 
@@ -485,8 +483,22 @@ class _HomePageState extends State<HomePage> {
         agidentification = 'National Identification No';
         agNin.text = '';
 
-        dropdownPlaza = 'No. of Floors';
-        totalshops.text = '';
+        dropdownHouses = 'House Type';
+        flats.text = '';
+        rateH.text = '';
+
+        geolong.text = '';
+        geolat.text = '';
+
+        for (var i = 0; i < floorNoControllers.length; i++) {
+          floorNoControllers[i].text = '';
+        }
+        for (var j = 0; j < shopsperfloorControllers.length; j++) {
+          shopsperfloorControllers[j].text = '';
+        }
+        for (var i = 0; i < rateControllers.length; i++) {
+          rateControllers[i].text = '';
+        }
 
         showMessage('Data Submitted Succesfully');
         //after write success, make fields empty
@@ -579,8 +591,110 @@ class _HomePageState extends State<HomePage> {
         agidentification = 'National Identification No';
         agNin.text = '';
 
-        dropdownPlaza = 'No. of Floors';
-        totalshops.text = '';
+        units.text = '';
+        rpu.text = '';
+
+        geolong.text = '';
+        geolat.text = '';
+
+        showMessage('Data Submitted Succesfully');
+        //after write success, make fields empty
+
+        setState(() {
+          sending = false;
+          success = true; //mark success and refresh UI with setState
+        });
+      }
+    } else {
+      //there is error
+      setState(() {
+        error = true;
+        msg = "Error during sending data.";
+        sending = false;
+        //mark error and refresh UI with setState
+      });
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future sendDataOthers2() async {
+    setState(() {
+      _isLoading = true;
+    });
+    var res = await http.post(Uri.parse(phpurl4), body: {
+      "role": userrole.toLowerCase(),
+      "fullname": fullName.text,
+      "regname": regName.text,
+      "nationality": nationality.text,
+      // "resaddress": resAddress.text,
+      "phone": phone.text,
+      "natureofbus": dropdownValueBusNature,
+      "busType": busType.text,
+      "busaddress": busAddress.text,
+      "duedate": dueDate.text,
+      "busregno": busRegNo.text,
+      "tpmeans": identification,
+      "tpnin": nin.text,
+      "kadirsid": kadIRSId.text,
+      "areaoffice": areaofficedropdown,
+      "renttype": rentType.toLowerCase(),
+      "agname": agName.text,
+      "agMail": agMail.text,
+      "agphone": agPhone.text,
+      "agmeans": agidentification,
+      "agnin": agNin.text,
+
+      "id": widget.id,
+      "long": geolong.text,
+      "lat": geolat.text,
+      //house table
+      "othersrentype": renType.text,
+      "units": units.text,
+      "rpu": rpu.text,
+    }); //sending post request with header data
+
+    if (res.statusCode == 200) {
+      debugPrint(res.body); //print raw response on console
+      var data = json.decode(res.body); //decoding json to array
+      if (data["error"]) {
+        setState(() {
+          //refresh the UI when error is recieved from server
+          sending = false;
+          error = true;
+          msg = data["message"]; //error message from server
+        });
+      } else {
+        setState(() {});
+        fullName.text = '';
+        regName.text = '';
+        nationality.text = 'Nigeria';
+        // resAddress.text = '';
+        phone.text = '';
+        dropdownValueBusNature = 'Individual(Sole Proprietor)';
+        busType.text = '';
+        busAddress.text = '';
+        dueDate.text = '';
+        busRegNo.text = '';
+        areaofficedropdown = 'Select Area Office';
+        identification = 'National Identification No';
+        nin.text = '';
+        kadIRSId.text = '';
+        rentType = 'Select Type of Rent';
+
+        agName.text = '';
+        agMail.text = '';
+        agPhone.text = '';
+        agidentification = 'National Identification No';
+        agNin.text = '';
+
+        renType.text = '';
+        units.text = '';
+        rpu.text = '';
+
+        geolong.text = '';
+        geolat.text = '';
 
         showMessage('Data Submitted Succesfully');
         //after write success, make fields empty
@@ -632,64 +746,40 @@ class _HomePageState extends State<HomePage> {
                   ? _form3()
                   : (rentType == "Estate/Compound")
                       ? estatecomp()
-                      : (rentType == "Event Center" ||
-                              rentType == "Telecommunication mast" ||
-                              rentType == "Farm" ||
-                              rentType == "Restaurant" ||
-                              rentType == "Garden/Bar" ||
-                              rentType == "School" ||
-                              rentType == "Hospital" ||
-                              rentType == "Others")
-                          ? _formOthers()
-                          //         : (rentType == "Schools")
-                          //             ? _formRent()
-                          //             : (rentType == "Hospitals")
-                          //                 ? _formRent()
-                          : Container(),
+                      : (rentType == "Others")
+                          ? others()
+                          : (rentType == "Event Center" ||
+                                  rentType == "Telecommunication mast" ||
+                                  rentType == "Farm" ||
+                                  rentType == "Restaurant" ||
+                                  rentType == "Garden/Bar" ||
+                                  rentType == "School" ||
+                                  rentType == "Hospital")
+                              ? _formOthers()
+                              : Container(),
         ),
         Step(
-            state: StepState.complete,
-            isActive: activeStepIndex >= 3,
-            title: const Text('Confirm'),
-            content: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                // mainAxisAlignment: MainAxisAlignment,
-                children: [
-                  const Text('LandLord Info',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('Taxpayer Name: ${fullName.text}'),
-                  Text('Registered Name: ${regName.text}'),
-                  Text('Nationality: ${nationality.text}'),
-                  // Text('Residential Address: ${resAddress.text}'),
-                  Text('Phone Number: ${phone.text}'),
-                  Text('Nature of Business: $dropdownValueBusNature'),
-                  Text('Business Type: ${busType.text}'),
-                  Text('Business Address: ${busAddress.text}'),
-                  Text('Commencement Date: ${dueDate.text}'),
-                  Text('Business Registration No: ${busRegNo.text}'),
-                  Text('Taxpayer Identification No(TIN): ${nin.text}'),
-                  Text('KadIRS ID: ${kadIRSId.text}'),
-                  Text('Rent Type: $rentType'),
-                  const Padding(padding: EdgeInsets.all(5.0)),
-                  const Text('Agent Info',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text('Agent\'s Full Name: ${agName.text}'),
-                  Text('Agent\'s Phone Number: ${agPhone.text}'),
-                  Text('Agent\'s Mail: ${agMail.text}'),
-                  Text('No of floors: $dropdownPlaza'),
-                  Text('totalshops: ${totalshops.text}'),
-                  for (var i = 0; i < floorNoControllers.length; i++)
-                    Text("Floor: ${floorNoControllers[i].text}"),
-                  for (var i = 0; i < shopsperfloorControllers.length; i++)
-                    Text(
-                        "Shops per floor: ${shopsperfloorControllers[i].text}"),
-                  for (var i = 0; i < rateControllers.length; i++)
-                    Text("rate: ${rateControllers[i].text}"),
-                ],
-              ),
-            )),
+          state: StepState.complete,
+          isActive: activeStepIndex >= 3,
+          title: const Text('Confirm'),
+          content: (rentType == "Plaza")
+              ? plazaConfirm()
+              : (rentType == "House")
+                  ? houseConfirm()
+                  : (rentType == "Estate/Compound")
+                      ? ecConfirm()
+                      : (rentType == "Others")
+                          ? others2Confirm()
+                          : (rentType == "Event Center" ||
+                                  rentType == "Telecommunication mast" ||
+                                  rentType == "Farm" ||
+                                  rentType == "Restaurant" ||
+                                  rentType == "Garden/Bar" ||
+                                  rentType == "School" ||
+                                  rentType == "Hospital")
+                              ? othersConfirm()
+                              : Container(),
+        ),
       ];
 
   @override
@@ -765,17 +855,18 @@ class _HomePageState extends State<HomePage> {
                                     ? sendDataHouses()
                                     : rentType == "Estate/Compound"
                                         ? sendDataEstate()
-                                        : rentType == "Event Center" ||
-                                                rentType ==
-                                                    "Telecommunication mast" ||
-                                                rentType == "Farm" ||
-                                                rentType == "Restaurant" ||
-                                                rentType == "Garden/Bar" ||
-                                                rentType == "School" ||
-                                                rentType == "Hospital" ||
-                                                rentType == "Others"
-                                            ? sendDataOthers()
-                                            : Container();
+                                        : rentType == "Others"
+                                            ? sendDataOthers2()
+                                            : rentType == "Event Center" ||
+                                                    rentType ==
+                                                        "Telecommunication mast" ||
+                                                    rentType == "Farm" ||
+                                                    rentType == "Restaurant" ||
+                                                    rentType == "Garden/Bar" ||
+                                                    rentType == "School" ||
+                                                    rentType == "Hospital"
+                                                ? sendDataOthers()
+                                                : Container();
                             // debugPrint(floorNoControllers[0].text);
                             // sendData2();
                           },
@@ -878,17 +969,19 @@ class _HomePageState extends State<HomePage> {
             height: 20,
           ),
           TextFormField(
+            validator: validateG,
             decoration: decorate('longitude'),
             controller: geolong,
-            enabled: false,
+            readOnly: true,
           ),
           const SizedBox(
             height: 20,
           ),
           TextFormField(
+            validator: validateG,
             decoration: decorate('latitude'),
             controller: geolat,
-            enabled: false,
+            readOnly: true,
           ),
           const SizedBox(
             height: 20,
@@ -899,15 +992,6 @@ class _HomePageState extends State<HomePage> {
               ),
               onPressed: () async {
                 getLocation();
-                for (var i = 0; i < floorNoControllers.length; i++) {
-                  debugPrint(floorNoControllers[i].text);
-                }
-                for (var j = 0; j < shopsperfloorControllers.length; j++) {
-                  debugPrint(shopsperfloorControllers[j].text);
-                }
-                for (var i = 0; i < rateControllers.length; i++) {
-                  debugPrint((rateControllers[i].text));
-                }
               },
               child: const Text('Get Geo Location')),
           const SizedBox(
@@ -1033,11 +1117,32 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _formOthers() {
-    //plaza rent type form
     return Form(
       key: _formKey[2],
       child: Column(
         children: [
+          textField(units, 'Unit(s)', TextInputType.number),
+          const SizedBox(
+            height: 20,
+          ),
+          textField(rpu, 'Rate per unit', TextInputType.number),
+          const SizedBox(
+            height: 20,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget others() {
+    return Form(
+      key: _formKey[2],
+      child: Column(
+        children: [
+          textField(renType, 'Rent Type', TextInputType.text),
+          const SizedBox(
+            height: 20,
+          ),
           textField(units, 'Unit(s)', TextInputType.number),
           const SizedBox(
             height: 20,
@@ -1344,7 +1449,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget dropDownUserRole() {
     return DropdownButtonFormField<String>(
-      // validator: validateD,
+      // validator: validateR,
       decoration: const InputDecoration(
           label: Text('Select User Role'),
           enabledBorder: OutlineInputBorder(
@@ -1620,23 +1725,196 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<dynamic> locPop(String msg) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(msg),
-          actions: <Widget>[
-            TextButton(
-              child: const Text("OK"),
-              onPressed: () {
-                Navigator.of(context).pop();
-                AppSettings.openLocationSettings();
-              },
-            ),
+  Widget textC(text1, text2) => Text('$text1 $text2');
+
+  Widget plazaConfirm() => Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          // mainAxisAlignment: MainAxisAlignment,
+          children: [
+            const Text('Property Owner Info',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('Name: ', fullName.text),
+            textC('Registered Name: ', regName.text),
+            textC('Phone Number: ', phone.text),
+            textC('Nature of Business: ', dropdownValueBusNature),
+            textC('Business Type: ', busType.text),
+            textC('Business Address: ', busAddress.text),
+            textC('Commencement Date: ', dueDate.text),
+            textC('Business Registration No: ', busRegNo.text),
+            textC('Taxpayer Identification No(TIN): ', nin.text),
+            textC('KadIRS ID: ', kadIRSId.text),
+            textC('Rent Type: ', rentType),
+            const Padding(padding: EdgeInsets.all(5.0)),
+            const Text('Property Manager Info',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('Full Name: ', agName.text),
+            textC('Phone Number: ', agPhone.text),
+            textC('Mail: ', agMail.text),
+            textC('ID: ', agNin.text),
+            const Padding(padding: EdgeInsets.all(5.0)),
+            const Text('Rent Details',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('No of floors: ', dropdownPlaza),
+            textC('totalshops: ', totalshops.text),
+            for (var i = 0; i < floorNoControllers.length; i++)
+              textC("Floor: ", floorNoControllers[i].text),
+            for (var i = 0; i < shopsperfloorControllers.length; i++)
+              textC("Shops per floor: ", shopsperfloorControllers[i].text),
+            for (var i = 0; i < rateControllers.length; i++)
+              textC("rate: ", rateControllers[i].text),
           ],
-        );
-      },
-    );
-  }
+        ),
+      );
+
+  Widget houseConfirm() => Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          // mainAxisAlignment: MainAxisAlignment,
+          children: [
+            const Text('Property Owner Info',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('Name: ', fullName.text),
+            textC('Registered Name: ', regName.text),
+            textC('Phone Number: ', phone.text),
+            textC('Nature of Business: ', dropdownValueBusNature),
+            textC('Business Type: ', busType.text),
+            textC('Business Address: ', busAddress.text),
+            textC('Commencement Date: ', dueDate.text),
+            textC('Business Registration No: ', busRegNo.text),
+            textC('IDNo: ', nin.text),
+            textC('KadIRS ID: ', kadIRSId.text),
+            textC('Rent Type: ', rentType),
+            const Padding(padding: EdgeInsets.all(5.0)),
+            const Text('Property Manager Info',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('Full Name: ', agName.text),
+            textC('Phone Number: ', agPhone.text),
+            textC('Mail: ', agMail.text),
+            textC('ID: ', agNin.text),
+            const Padding(padding: EdgeInsets.all(5.0)),
+            const Text('Rent Details',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('House Type: ', dropdownHouses),
+            textC('No. of flats: ', flats.text),
+            textC('Rate: ', rateH.text)
+          ],
+        ),
+      );
+
+  Widget ecConfirm() => Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          // mainAxisAlignment: MainAxisAlignment,
+          children: [
+            const Text('Property Owner Info',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('Name: ', fullName.text),
+            textC('Registered Name: ', regName.text),
+            textC('Phone Number: ', phone.text),
+            textC('Nature of Business: ', dropdownValueBusNature),
+            textC('Business Type: ', busType.text),
+            textC('Business Address: ', busAddress.text),
+            textC('Commencement Date: ', dueDate.text),
+            textC('Business Registration No: ', busRegNo.text),
+            textC('Taxpayer Identification No(TIN): ', nin.text),
+            textC('KadIRS ID: ', kadIRSId.text),
+            textC('Rent Type: ', rentType),
+            const Padding(padding: EdgeInsets.all(5.0)),
+            const Text('Property Manager Info',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('Full Name: ', agName.text),
+            textC('Phone Number: ', agPhone.text),
+            textC('Mail: ', agMail.text),
+            textC('ID: ', agNin.text),
+            const Padding(padding: EdgeInsets.all(5.0)),
+            const Text('Rent Details',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('Total no. of house: ', noofestatecomp),
+            textC('House Type: ', housetype.text),
+            textC('Unit(s): ', nohouse.text),
+            textC('Rate: ', rateEstate.text),
+            for (var i = 0; i < housetypeControllers.length; i++)
+              textC("House Type: ", housetypeControllers[i].text),
+            for (var i = 0; i < nohouseControllers.length; i++)
+              textC("Unit(s): ", nohouseControllers[i].text),
+            for (var i = 0; i < rateEstateControllers.length; i++)
+              textC("rate: ", rateEstateControllers[i].text),
+          ],
+        ),
+      );
+
+  Widget othersConfirm() => Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          // mainAxisAlignment: MainAxisAlignment,
+          children: [
+            const Text('Property Owner Info',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('Name: ', fullName.text),
+            textC('Registered Name: ', regName.text),
+            textC('Phone Number: ', phone.text),
+            textC('Nature of Business: ', dropdownValueBusNature),
+            textC('Business Type: ', busType.text),
+            textC('Business Address: ', busAddress.text),
+            textC('Commencement Date: ', dueDate.text),
+            textC('Business Registration No: ', busRegNo.text),
+            textC('Taxpayer Identification No(TIN): ', nin.text),
+            textC('KadIRS ID: ', kadIRSId.text),
+            textC('Rent Type: ', rentType),
+            const Padding(padding: EdgeInsets.all(5.0)),
+            const Text('Property Manager Info',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('Full Name: ', agName.text),
+            textC('Phone Number: ', agPhone.text),
+            textC('Mail: ', agMail.text),
+            textC('ID: ', agNin.text),
+            const Padding(padding: EdgeInsets.all(5.0)),
+            const Text('Rent Details',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('Unit(s): ', units.text),
+            textC('Rate: ', rpu.text),
+          ],
+        ),
+      );
+
+  Widget others2Confirm() => Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          // mainAxisAlignment: MainAxisAlignment,
+          children: [
+            const Text('Property Owner Info',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('Name: ', fullName.text),
+            textC('Registered Name: ', regName.text),
+            textC('Phone Number: ', phone.text),
+            textC('Nature of Business: ', dropdownValueBusNature),
+            textC('Business Type: ', busType.text),
+            textC('Business Address: ', busAddress.text),
+            textC('Commencement Date: ', dueDate.text),
+            textC('Business Registration No: ', busRegNo.text),
+            textC('Taxpayer Identification No(TIN): ', nin.text),
+            textC('KadIRS ID: ', kadIRSId.text),
+            textC('Rent Type: ', rentType),
+            const Padding(padding: EdgeInsets.all(5.0)),
+            const Text('Property Manager Info',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('Full Name: ', agName.text),
+            textC('Phone Number: ', agPhone.text),
+            textC('Mail: ', agMail.text),
+            textC('ID: ', agNin.text),
+            const Padding(padding: EdgeInsets.all(5.0)),
+            const Text('Rent Details',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            textC('Rent Type: ', renType.text),
+            textC('Unit(s): ', units.text),
+            textC('Rate: ', rpu.text),
+          ],
+        ),
+      );
 }

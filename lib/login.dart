@@ -1,11 +1,10 @@
 import 'dart:convert';
-// import 'package:enum_app/homepage.dart';
 import 'package:enum_app/main.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:async';
-// import 'package:connectivity_plus/connectivity_plus.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:app_settings/app_settings.dart';
 
 class Login extends StatefulWidget {
   const Login({Key? key}) : super(key: key);
@@ -30,6 +29,53 @@ class _LoginState extends State<Login> {
   String lastname = '';
   String team = '';
   String ephone = '';
+
+  //geo
+  bool servicestatus = false;
+  bool haspermission = false;
+  late LocationPermission permission;
+  late Position position;
+  String long = "", lat = "";
+  late StreamSubscription<Position> positionStream;
+
+  @override
+  void initState() {
+    checkGps();
+    super.initState();
+  }
+
+  checkGps() async {
+    servicestatus = await Geolocator.isLocationServiceEnabled();
+    if (servicestatus) {
+      permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          //debugPrint('Location permissions are denied');
+        } else if (permission == LocationPermission.deniedForever) {
+          //debugPrint("'Location permissions are permanently denied");
+        } else {
+          haspermission = true;
+        }
+      } else {
+        haspermission = true;
+      }
+
+      if (haspermission) {
+        setState(() {
+          //refresh the UI
+        });
+      }
+    } else {
+      //debugPrint("GPS Service is not enabled, turn on GPS location");
+      locPop('Switch On Location Service');
+    }
+
+    setState(() {
+      //refresh the UI
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -218,60 +264,66 @@ class _LoginState extends State<Login> {
 
     Uri url = Uri.parse('https://kadirs.withholdingtax.ng/mobile/login.php');
 
-    var data = {'username': username, 'password': password};
+    try {
+      var data = {'username': username, 'password': password};
 
-    var response = await http.post(url, body: json.encode(data));
+      var response = await http.post(url, body: json.encode(data));
 
-    var jsondata = json.decode(response.body);
+      var jsondata = json.decode(response.body);
 
-    if (response.statusCode == 200) {
-      if (!mounted) return;
-      String id = jsondata["id"];
-      String firstname = jsondata["fname"];
-      String lastname = jsondata["lname"];
-      String team = jsondata["team"];
-      String ephone = jsondata["phone"];
+      if (response.statusCode == 200) {
+        if (!mounted) return;
+        String id = jsondata["id"];
+        String firstname = jsondata["fname"];
+        String lastname = jsondata["lname"];
+        String team = jsondata["team"];
+        String ephone = jsondata["phone"];
 
-      // print(id);
+        // print(id);
 
-      setState(() {
-        id = id;
-      });
+        setState(() {
+          id = id;
+        });
 
-      // Navigate to Home Screen
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => MyHomePage(
-              mail: '',
-              phone: '',
-              fname: '',
-              role: '',
-              nin: '',
-              id: id,
-              firstname: firstname,
-              lastname: lastname,
-              team: team,
-              ephone: ephone,
-            ),
-          ),
-          (route) => false);
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(jsondata),
-            actions: <Widget>[
-              TextButton(
-                child: const Text("OK"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
+        // Navigate to Home Screen
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => MyHomePage(
+                mail: '',
+                phone: '',
+                fname: '',
+                role: '',
+                nin: '',
+                id: id,
+                firstname: firstname,
+                lastname: lastname,
+                team: team,
+                ephone: ephone,
               ),
-            ],
-          );
-        },
-      );
+            ),
+            (route) => false);
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(jsondata),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
     }
     setState(() {
       _isLoading = false;
@@ -287,6 +339,26 @@ class _LoginState extends State<Login> {
         borderRadius: BorderRadius.circular(5.0),
         borderSide: const BorderSide(),
       ),
+    );
+  }
+
+  Future<dynamic> locPop(String msg) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(msg),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                AppSettings.openLocationSettings();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

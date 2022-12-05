@@ -1,14 +1,10 @@
 import 'package:enum_app/homepage.dart';
 import 'package:enum_app/profile.dart';
-// import 'package:enum_app/login.dart';
-// import 'package:enum_app/login.dart';
 import 'package:enum_app/search.dart';
 import 'package:enum_app/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-// import 'package:geolocator/geolocator.dart';
-// import 'package:app_settings/app_settings.dart';
 
 void main() {
   // add these lines
@@ -25,23 +21,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Tax Enumeration',
-      theme: ThemeData(
-        primarySwatch: colorCustom,
-        textTheme: GoogleFonts.latoTextTheme(
-          Theme.of(context).textTheme,
-        ),
-      ),
-      home: const SplashPage(
-          // id: '',
-          // mail: '',
-          // fname: '',
-          // phone: '',
-          // role: '',
-          // nin: '',
+        debugShowCheckedModeBanner: false,
+        title: 'Tax Enumeration',
+        theme: ThemeData(
+          primarySwatch: colorCustom,
+          textTheme: GoogleFonts.latoTextTheme(
+            Theme.of(context).textTheme,
           ),
-    );
+        ),
+        home: const SplashPage());
   }
 }
 
@@ -129,26 +117,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
-//     Future<dynamic> locPop(String msg) async {
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           title: Text(msg),
-//           actions: <Widget>[
-//             TextButton(
-//               child: const Text("OK"),
-//               onPressed: () {
-//                 Navigator.of(context).pop();
-//                 AppSettings.openLocationSettings();
-//               },
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
 }
 
 MaterialColor colorCustom = const MaterialColor(

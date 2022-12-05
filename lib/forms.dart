@@ -78,6 +78,7 @@ TextEditingController nohouse = TextEditingController();
 TextEditingController rateEstate = TextEditingController();
 
 //others
+TextEditingController renType = TextEditingController();
 TextEditingController units = TextEditingController();
 TextEditingController rpu = TextEditingController();
 
@@ -91,23 +92,30 @@ Widget textField(
   inputType,
 ) {
   return TextFormField(
-    // validator: validateField,
+    validator: validateField,
     controller: controllerValue,
     keyboardType: inputType,
     decoration: decorate(label),
   );
 }
 
-// String? validateField(value) {
-//   if (value.isEmpty) {
-//     return "field is required";
-//   }
-//   return null;
-// }
+String? validateField(value) {
+  if (value.isEmpty) {
+    return "field is required";
+  }
+  return null;
+}
 
 String? validateD(value) {
   if (value == 'Select Type of Rent') {
     return "field is required";
+  }
+  return null;
+}
+
+String? validateG(value) {
+  if (value.isEmpty) {
+    return "field is required, switch on your location";
   }
   return null;
 }
