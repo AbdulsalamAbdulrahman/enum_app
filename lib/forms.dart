@@ -38,7 +38,7 @@ TextEditingController busAddress = TextEditingController();
 TextEditingController dueDate = TextEditingController();
 TextEditingController busRegNo = TextEditingController();
 // TextEditingController tin = TextEditingController();
-TextEditingController nin = TextEditingController(text: 'Not Available');
+TextEditingController nin = TextEditingController();
 TextEditingController kadIRSId = TextEditingController();
 // TextEditingController areaoffice = TextEditingController();
 
@@ -47,7 +47,7 @@ TextEditingController agName = TextEditingController();
 TextEditingController agMail = TextEditingController();
 TextEditingController agPhone = TextEditingController();
 // TextEditingController agTin = TextEditingController();
-TextEditingController agNin = TextEditingController(text: 'Not Available');
+TextEditingController agNin = TextEditingController();
 
 //floors
 TextEditingController first = TextEditingController();
@@ -94,19 +94,6 @@ Widget textField(
   return TextFormField(
     validator: validateField,
     controller: controllerValue,
-    keyboardType: inputType,
-    decoration: decorate(label),
-  );
-}
-
-Widget textFieldNIN(
-  controllerValue,
-  String label,
-  inputType,
-) {
-  return TextFormField(
-    validator: validateField,
-    controller: nin,
     keyboardType: inputType,
     decoration: decorate(label),
   );
@@ -173,19 +160,17 @@ Widget housesInfo() {
 }
 
 Widget identiTin() {
-  return textFieldNIN(nin, 'Taxpayer Identification No', TextInputType.number);
+  return textField(nin, 'Taxpayer Identification No', TextInputType.text);
 }
 
 Widget identiNin() {
-  return textFieldNIN(nin, 'National Identification No', TextInputType.number);
+  return textField(nin, 'National Identification No', TextInputType.text);
 }
 
 Widget agidentiTin() {
-  return textFieldNIN(
-      agNin, 'Taxpayer Identification No', TextInputType.number);
+  return textField(agNin, 'Taxpayer Identification No', TextInputType.text);
 }
 
 Widget agidentiNin() {
-  return textFieldNIN(
-      agNin, 'National Identification No', TextInputType.number);
+  return textField(agNin, 'National Identification No', TextInputType.text);
 }
