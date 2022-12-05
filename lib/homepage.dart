@@ -814,11 +814,11 @@ class _HomePageState extends State<HomePage> {
             activeStepIndex -= 1;
           });
         },
-        onStepTapped: (int index) {
-          setState(() {
-            activeStepIndex = index;
-          });
-        },
+        // onStepTapped: (int index) {
+        //   setState(() {
+        //     activeStepIndex = index;
+        //   });
+        // },
         controlsBuilder: (BuildContext context, ControlsDetails controls) {
           final isLastStep = activeStepIndex == stepList().length - 1;
           return Row(
