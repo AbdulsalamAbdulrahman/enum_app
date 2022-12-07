@@ -191,20 +191,7 @@ class _ProfileState extends State<Profile> {
 
   Widget buttonR() => Padding(
         padding: const EdgeInsets.all(20),
-        child: ElevatedButton.icon(
-            icon: _isLoading
-                ? const SizedBox(
-                    height: 15.0,
-                    width: 15.0,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                    ),
-                  )
-                : const Text(''),
-            label: Text(
-              _isLoading ? '' : 'View Revisit Info',
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-            ),
+        child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               minimumSize: const Size(500, 50),
               maximumSize: const Size(500, 50),
@@ -212,6 +199,10 @@ class _ProfileState extends State<Profile> {
             onPressed: () async {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const Revisit()));
-            }),
+            },
+            child: const Text(
+              'Revisit Info',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            )),
       );
 }
