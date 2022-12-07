@@ -91,7 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
           lastname: widget.lastname,
           team: widget.team,
           ephone: widget.ephone,
-        )
+        ),
       ];
 
   void _selectScreen(int index) {

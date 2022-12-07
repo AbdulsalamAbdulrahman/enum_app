@@ -56,7 +56,7 @@ class _HomePageState extends State<HomePage> {
   String identification = 'National Identification No';
   String agidentification = 'National Identification No';
   String areaofficedropdown = 'Select Area Office';
-  String noofestatecomp = 'Select Number of House';
+  // String noofestatecomp = 'Select Number of House';
   String userrole = 'Agent';
 
   late bool error, sending, success;
@@ -159,7 +159,10 @@ class _HomePageState extends State<HomePage> {
     //   data = data + "rate:" + rateControllers[i].text + "},";
     // }
     // data = data + "]";
+
     String data = '[';
+    data = "$data{no_of_floors:$dropdownPlaza,";
+    data = "${data}total_shops:${totalshops.text}}],[";
     for (var i = 0; i < floorNoControllers.length; i++) {
       // "floorno[]": (floorNoControllers[i].text);
       data = "$data{floorno:${floorNoControllers[i].text},";
@@ -192,8 +195,8 @@ class _HomePageState extends State<HomePage> {
       "agmeans": agidentification,
       "agnin": agNin.text,
       //plaza table
-      "nooffloors": dropdownPlaza,
-      "totalshops": totalshops.text,
+      // "nooffloors": dropdownPlaza,
+      // "totalshops": totalshops.text,
 
       "id": widget.id,
       "long": geolong.text,
@@ -290,6 +293,7 @@ class _HomePageState extends State<HomePage> {
     // }
     // data = data + "]";
     String data = '[';
+    data = "$data{no_of_flats:${noofestatecomp.text}}],[";
     data = "$data{housetype:${housetype.text},";
     data = "${data}unit(s):${nohouse.text},";
     data = "${data}rate:${rateEstate.text}},";
@@ -326,7 +330,7 @@ class _HomePageState extends State<HomePage> {
       "agmeans": agidentification,
       "agnin": agNin.text,
 
-      "nooffloors": noofestatecomp,
+      // "nooffloors": noofestatecomp.text,
       "id": widget.id,
       "long": geolong.text,
       "lat": geolat.text,
@@ -371,7 +375,7 @@ class _HomePageState extends State<HomePage> {
         agidentification = 'National Identification No';
         agNin.text = '';
 
-        noofestatecomp = 'Select Number of House';
+        noofestatecomp.text = '';
 
         housetype.text = '';
         nohouse.text = '';
@@ -416,6 +420,11 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _isLoading = true;
     });
+    String data = '[';
+    data = "$data{house_type:$dropdownHouses,";
+    data = "${data}no_of_flats:${flats.text},";
+    data = "${data}rate:${rateH.text}},";
+    data = "$data]";
     var res = await http.post(Uri.parse(phpurl2), body: {
       "role": userrole.toLowerCase(),
       "fullname": fullName.text,
@@ -443,10 +452,12 @@ class _HomePageState extends State<HomePage> {
       "long": geolong.text,
       "lat": geolat.text,
 
+      "data": data,
+
       //house table
-      "housetype": dropdownHouses,
-      "flats": flats.text,
-      "rateH": rateH.text,
+      // "housetype": dropdownHouses,
+      // "flats": flats.text,
+      // "rateH": rateH.text,
     }); //sending post request with header data
 
     if (res.statusCode == 200) {
@@ -526,6 +537,10 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _isLoading = true;
     });
+    String data = '[';
+    data = "$data{unit(s):${units.text},";
+    data = "${data}rate:${rpu.text}},";
+    data = "$data]";
     var res = await http.post(Uri.parse(phpurl3), body: {
       "role": userrole.toLowerCase(),
       "fullname": fullName.text,
@@ -553,8 +568,10 @@ class _HomePageState extends State<HomePage> {
       "long": geolong.text,
       "lat": geolat.text,
       //house table
-      "units": units.text,
-      "rpu": rpu.text,
+      // "units": units.text,
+      // "rpu": rpu.text,
+
+      "data": data,
     }); //sending post request with header data
 
     if (res.statusCode == 200) {
@@ -623,6 +640,11 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _isLoading = true;
     });
+    String data = '[';
+    data = "$data{rent_type:${renType.text},";
+    data = "${data}unit(s):${units.text},";
+    data = "${data}rate:${rpu.text}},";
+    data = "$data]";
     var res = await http.post(Uri.parse(phpurl4), body: {
       "role": userrole.toLowerCase(),
       "fullname": fullName.text,
@@ -650,9 +672,11 @@ class _HomePageState extends State<HomePage> {
       "long": geolong.text,
       "lat": geolat.text,
       //house table
-      "othersrentype": renType.text,
-      "units": units.text,
-      "rpu": rpu.text,
+      // "othersrentype": renType.text,
+      // "units": units.text,
+      // "rpu": rpu.text,
+
+      "data": data,
     }); //sending post request with header data
 
     if (res.statusCode == 200) {
@@ -739,7 +763,9 @@ class _HomePageState extends State<HomePage> {
         Step(
           state: activeStepIndex <= 2 ? StepState.editing : StepState.complete,
           isActive: activeStepIndex >= 2,
-          title: const Text('Rent Type'),
+          title: activeStepIndex >= 2
+              ? Text('Rent Type($rentType)')
+              : const Text('Rent Type'),
           content: (rentType == "Plaza")
               ? _form2()
               : (rentType == "House")
@@ -1023,7 +1049,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          textField(agPhone, "Phone number", TextInputType.phone),
+          textFieldP(agPhone, "Phone number", TextInputType.phone),
           const SizedBox(
             height: 20,
           ),
@@ -1072,8 +1098,8 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          _addTile(),
           _listView(),
+          _addTile(),
           const SizedBox(
             height: 20,
           ),
@@ -1096,21 +1122,23 @@ class _HomePageState extends State<HomePage> {
               ? housesInfo()
               : (dropdownHouses == "Room and parlour")
                   ? housesInfo()
-                  : (dropdownHouses == "1-Bedroom")
+                  : (dropdownHouses == "Self Contain")
                       ? housesInfo()
-                      : (dropdownHouses == "2-Bedroom")
+                      : (dropdownHouses == "1-Bedroom")
                           ? housesInfo()
-                          : (dropdownHouses == "3-Bedroom")
+                          : (dropdownHouses == "2-Bedroom")
                               ? housesInfo()
-                              : (dropdownHouses == "4-Bedroom")
+                              : (dropdownHouses == "3-Bedroom")
                                   ? housesInfo()
-                                  : (dropdownHouses == "5-Bedroom")
+                                  : (dropdownHouses == "4-Bedroom")
                                       ? housesInfo()
-                                      : (dropdownHouses == "6-Bedroom")
+                                      : (dropdownHouses == "5-Bedroom")
                                           ? housesInfo()
-                                          : (dropdownHouses == "10")
+                                          : (dropdownHouses == "6-Bedroom")
                                               ? housesInfo()
-                                              : Container()
+                                              : (dropdownHouses == "10")
+                                                  ? housesInfo()
+                                                  : Container()
         ],
       ),
     );
@@ -1224,6 +1252,7 @@ class _HomePageState extends State<HomePage> {
     return DropdownButtonFormField<String>(
       validator: validateD,
       decoration: const InputDecoration(
+          label: Text('Select Type of Rent'),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(20.0)),
             borderSide: BorderSide(color: Colors.grey, width: 0.0),
@@ -1264,6 +1293,7 @@ class _HomePageState extends State<HomePage> {
     return DropdownButtonFormField<String>(
       // validator: validateD,
       decoration: const InputDecoration(
+          label: Text('No. of Floors'),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(20.0)),
             borderSide: BorderSide(color: Colors.grey, width: 0.0),
@@ -1299,59 +1329,60 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget dropDownEstateComp() {
-    return DropdownButtonFormField<String>(
-      // validator: validateD,
-      decoration: const InputDecoration(
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(20.0)),
-            borderSide: BorderSide(color: Colors.grey, width: 0.0),
-          ),
-          border: OutlineInputBorder()),
-      value: noofestatecomp,
-      onChanged: (String? newValue) {
-        setState(() {
-          noofestatecomp = newValue!;
-        });
-      },
-      items: <String>[
-        'Select Number of House',
-        '1',
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7',
-        '8',
-        '9',
-        '10',
-        '11',
-        '12',
-        '13',
-        '14',
-        '15',
-        '16',
-        '17',
-        '18',
-        '19',
-        '20',
-      ].map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-        );
-      }).toList(),
-    );
-  }
+  // Widget dropDownEstateComp() {
+  //   return DropdownButtonFormField<String>(
+  //     // validator: validateD,
+  //     decoration: const InputDecoration(
+  //         enabledBorder: OutlineInputBorder(
+  //           borderRadius: BorderRadius.all(Radius.circular(20.0)),
+  //           borderSide: BorderSide(color: Colors.grey, width: 0.0),
+  //         ),
+  //         border: OutlineInputBorder()),
+  //     value: noofestatecomp,
+  //     onChanged: (String? newValue) {
+  //       setState(() {
+  //         noofestatecomp = newValue!;
+  //       });
+  //     },
+  //     items: <String>[
+  //       'Select Number of House',
+  //       '1',
+  //       '2',
+  //       '3',
+  //       '4',
+  //       '5',
+  //       '6',
+  //       '7',
+  //       '8',
+  //       '9',
+  //       '10',
+  //       '11',
+  //       '12',
+  //       '13',
+  //       '14',
+  //       '15',
+  //       '16',
+  //       '17',
+  //       '18',
+  //       '19',
+  //       '20',
+  //     ].map<DropdownMenuItem<String>>((String value) {
+  //       return DropdownMenuItem<String>(
+  //         value: value,
+  //         child: Text(
+  //           value,
+  //           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+  //         ),
+  //       );
+  //     }).toList(),
+  //   );
+  // }
 
   Widget dropDownHouses() {
     return DropdownButtonFormField<String>(
       // validator: validateD,
       decoration: const InputDecoration(
+          label: Text('House Type'),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(20.0)),
             borderSide: BorderSide(color: Colors.grey, width: 0.0),
@@ -1366,6 +1397,7 @@ class _HomePageState extends State<HomePage> {
       items: <String>[
         'House Type',
         'Single',
+        'Self Contain',
         'Room and parlour',
         '1-Bedroom',
         '2-Bedroom',
@@ -1480,6 +1512,7 @@ class _HomePageState extends State<HomePage> {
     return DropdownButtonFormField<String>(
       // validator: validateD,
       decoration: const InputDecoration(
+          label: Text('Select Area Office'),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(20.0)),
             borderSide: BorderSide(color: Colors.grey, width: 0.0),
@@ -1564,24 +1597,37 @@ class _HomePageState extends State<HomePage> {
       key: _formKey[2],
       child: Column(
         children: <Widget>[
-          dropDownEstateComp(),
+          textField(noofestatecomp, 'Number of Flats', TextInputType.number),
           const SizedBox(
             height: 20,
           ),
-          textField(housetype, 'House Type', TextInputType.text),
-          const SizedBox(
-            height: 20,
+          InputDecorator(
+            decoration: InputDecoration(
+              labelText: "Add Description${1}".toString(),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+            ),
+            child: Column(
+              children: [
+                // dropDownHouses(),
+                textField(housetype, 'House Type', TextInputType.text),
+                const SizedBox(
+                  height: 20,
+                ),
+                textField(nohouse, 'Unit(s)', TextInputType.number),
+                const SizedBox(
+                  height: 20,
+                ),
+                textField(rateEstate, 'Rate', TextInputType.number),
+                const SizedBox(
+                  height: 20,
+                ),
+              ],
+            ),
           ),
-          textField(nohouse, 'Unit(s)', TextInputType.number),
-          const SizedBox(
-            height: 20,
-          ),
-          textField(rateEstate, 'Rate', TextInputType.number),
-          const SizedBox(
-            height: 20,
-          ),
-          _addTile2(),
           _listView2(),
+          _addTile2(),
           const SizedBox(
             height: 20,
           ),
@@ -1833,7 +1879,7 @@ class _HomePageState extends State<HomePage> {
             const Padding(padding: EdgeInsets.all(5.0)),
             const Text('Rent Details',
                 style: TextStyle(fontWeight: FontWeight.bold)),
-            textC('Total no. of house: ', noofestatecomp),
+            textC('Total no. of house: ', noofestatecomp.text),
             textC('House Type: ', housetype.text),
             textC('Unit(s): ', nohouse.text),
             textC('Rate: ', rateEstate.text),

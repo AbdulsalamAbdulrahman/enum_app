@@ -222,7 +222,7 @@ class _LoginState extends State<Login> {
 
   Widget pass() {
     return TextFormField(
-      keyboardType: TextInputType.text,
+      keyboardType: TextInputType.number,
       obscureText: _isObscure,
       decoration: InputDecoration(
         labelText: 'Password',
@@ -265,7 +265,11 @@ class _LoginState extends State<Login> {
     Uri url = Uri.parse('https://kadirs.withholdingtax.ng/mobile/login.php');
 
     try {
-      var data = {'username': username, 'password': password};
+      var data = {
+        'username': username,
+        'password': password,
+        'version': '1.0.0'
+      };
 
       var response = await http.post(url, body: json.encode(data));
 

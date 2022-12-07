@@ -86,6 +86,9 @@ TextEditingController rpu = TextEditingController();
 TextEditingController geolong = TextEditingController();
 TextEditingController geolat = TextEditingController();
 
+//ec
+TextEditingController noofestatecomp = TextEditingController();
+
 Widget textField(
   controllerValue,
   String label,
@@ -93,6 +96,19 @@ Widget textField(
 ) {
   return TextFormField(
     validator: validateField,
+    controller: controllerValue,
+    keyboardType: inputType,
+    decoration: decorate(label),
+  );
+}
+
+Widget textFieldP(
+  controllerValue,
+  String label,
+  inputType,
+) {
+  return TextFormField(
+    validator: validateP,
     controller: controllerValue,
     keyboardType: inputType,
     decoration: decorate(label),
@@ -116,6 +132,18 @@ String? validateD(value) {
 String? validateG(value) {
   if (value.isEmpty) {
     return "field is required, switch on your location";
+  }
+  return null;
+}
+
+String? validateP(value) {
+  if (value.isEmpty) {
+    return 'field is required';
+  } else if (value.contains(RegExp(r'^[a-zA-Z\-]'))) {
+    return 'Use only numbers!';
+  } else if (value.length != 11) {
+    return 'phone number should be 11 characters';
+    // return "field is required, switch on your location";
   }
   return null;
 }
@@ -151,7 +179,7 @@ Widget housesInfo() {
       const SizedBox(
         height: 20,
       ),
-      textField(rateH, 'Rate', TextInputType.number),
+      textField(rateH, 'Rate per flat', TextInputType.number),
       const SizedBox(
         height: 20,
       ),
