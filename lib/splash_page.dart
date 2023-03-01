@@ -17,7 +17,7 @@ class _SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) {
     return EasySplashScreen(
       logo: Image.asset(
-        'kad.jpg',
+        'assets/kad.jpg',
         alignment: Alignment.center,
       ),
       title: const Text(
