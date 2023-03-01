@@ -27,7 +27,7 @@ class _SplashPageState extends State<SplashPage> {
           fontWeight: FontWeight.w300,
         ),
       ),
-      logoSize: 100,
+      logoWidth: 100,
       backgroundColor: Colors.white,
       showLoader: true,
       loaderColor: Colors.green.shade900,
