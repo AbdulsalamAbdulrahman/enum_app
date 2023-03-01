@@ -108,8 +108,7 @@ class _SearchState extends State<Search> {
                                               phone: dataList1[index]['phone'],
                                               mail: dataList1[index]['mail'],
                                               role: dataList1[index]['role'],
-                                              nin: dataList1[index]['nin'] ??
-                                                  "NA",
+                                              nin: dataList1[index]['nin'],
                                               id: widget.id,
                                               firstname: widget.firstname,
                                               lastname: widget.lastname,
@@ -122,20 +121,14 @@ class _SearchState extends State<Search> {
                                     fontSize: 24, color: Colors.white)),
                             title: Text('${dataList1[index]["fname"]}',
                                 style: const TextStyle(color: Colors.white)),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(dataList1[index]['mail'] ?? "NA",
-                                    style:
-                                        const TextStyle(color: Colors.white)),
-                                Text(dataList1[index]['phone'] ?? "NA",
-                                    style:
-                                        const TextStyle(color: Colors.white)),
-                                Text(dataList1[index]['nin'] ?? "NA",
-                                    style:
-                                        const TextStyle(color: Colors.white)),
-                              ],
-                            )),
+                            subtitle: Text(
+                                dataList1[index]['mail'] +
+                                        "\n" +
+                                        dataList1[index]['phone'] +
+                                        "\n" +
+                                        dataList1[index]['nin'] ??
+                                    "NA",
+                                style: const TextStyle(color: Colors.white))),
                       ),
                     )
                   : const Text(
