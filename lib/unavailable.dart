@@ -58,7 +58,7 @@ class _UnavailableState extends State<Unavailable> {
       geolat.text = lat;
     });
     setState(() {
-      _isLoading = false;
+      _isLoadingG = false;
     });
   }
 
@@ -210,7 +210,7 @@ class _UnavailableState extends State<Unavailable> {
           borderSide: const BorderSide(),
         ),
       ),
-      onSaved: (value) => agentPhone,
+      onSaved: (value) => agentPhone = value.toString(),
       onChanged: (value) {
         if (value.isNotEmpty) {}
         // return null;
@@ -236,7 +236,7 @@ class _UnavailableState extends State<Unavailable> {
           borderSide: const BorderSide(),
         ),
       ),
-      onSaved: (value) => propertyName,
+      onSaved: (value) => propertyName = value.toString(),
       onChanged: (value) {
         if (value.isNotEmpty) {}
         // return null;
@@ -262,7 +262,7 @@ class _UnavailableState extends State<Unavailable> {
           borderSide: const BorderSide(),
         ),
       ),
-      onSaved: (value) => propertyAddress,
+      onSaved: (value) => propertyAddress = value.toString(),
       onChanged: (value) {
         if (value.isNotEmpty) {}
         // return null;
