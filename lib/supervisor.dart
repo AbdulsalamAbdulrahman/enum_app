@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
-class Revisit extends StatefulWidget {
-  const Revisit({super.key});
+class Supervisor extends StatefulWidget {
+  const Supervisor({super.key});
 
   @override
-  State<Revisit> createState() => _RevisitState();
+  State<Supervisor> createState() => _SupervisorState();
 }
 
-class _RevisitState extends State<Revisit> {
+class _SupervisorState extends State<Supervisor> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Revisit Page'),
+        title: const Text('Supervisor Page'),
       ),
       body: const Center(
         child: Text('Under Construction'),

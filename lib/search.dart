@@ -10,6 +10,7 @@ class Search extends StatefulWidget {
   final String lastname;
   final String team;
   final String ephone;
+  final String userRole;
 
   const Search(
       {Key? key,
@@ -17,7 +18,8 @@ class Search extends StatefulWidget {
       required this.firstname,
       required this.lastname,
       required this.team,
-      required this.ephone})
+      required this.ephone,
+      required this.userRole})
       : super(key: key);
 
   @override
@@ -121,6 +123,7 @@ class _SearchState extends State<Search> {
                                               lastname: widget.lastname,
                                               team: widget.team,
                                               ephone: widget.ephone,
+                                              userRole: widget.userRole,
                                             )),
                                     (route) => false),
                             leading: Text(dataList1[index]["role"],

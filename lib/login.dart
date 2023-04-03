@@ -29,6 +29,7 @@ class _LoginState extends State<Login> {
   String lastname = '';
   String team = '';
   String ephone = '';
+  String userRole = '';
 
   //geo
   bool servicestatus = false;
@@ -282,8 +283,7 @@ class _LoginState extends State<Login> {
         String lastname = jsondata["lname"];
         String team = jsondata["team"];
         String ephone = jsondata["phone"];
-
-        // print(id);
+        String userRole = jsondata["role"];
 
         setState(() {
           id = id;
@@ -303,6 +303,7 @@ class _LoginState extends State<Login> {
                 lastname: lastname,
                 team: team,
                 ephone: ephone,
+                userRole: userRole,
               ),
             ),
             (route) => false);

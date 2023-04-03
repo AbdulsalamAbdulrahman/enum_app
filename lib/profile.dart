@@ -1,4 +1,3 @@
-import 'package:enum_app/revisit.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:async';
@@ -73,7 +72,7 @@ class _ProfileState extends State<Profile> {
             ),
             button(),
             const SizedBox(height: 10),
-            buttonR()
+            // buttonR()
           ],
         ),
       ),
@@ -189,20 +188,20 @@ class _ProfileState extends State<Profile> {
             }),
       );
 
-  Widget buttonR() => Padding(
-        padding: const EdgeInsets.all(20),
-        child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(500, 50),
-              maximumSize: const Size(500, 50),
-            ),
-            onPressed: () async {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Revisit()));
-            },
-            child: const Text(
-              'Revisit Info',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-            )),
-      );
+//   Widget buttonR() => Padding(
+//         padding: const EdgeInsets.all(20),
+//         child: ElevatedButton(
+//             style: ElevatedButton.styleFrom(
+//               minimumSize: const Size(500, 50),
+//               maximumSize: const Size(500, 50),
+//             ),
+//             onPressed: () async {
+//               Navigator.push(context,
+//                   MaterialPageRoute(builder: (context) => const Revisit()));
+//             },
+//             child: const Text(
+//               'Revisit Info',
+//               style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+//             )),
+//       );
 }

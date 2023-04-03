@@ -1,10 +1,13 @@
 import 'package:enum_app/homepage.dart';
 import 'package:enum_app/profile.dart';
+import 'package:enum_app/supervisor.dart';
 import 'package:enum_app/search.dart';
 import 'package:enum_app/splash_page.dart';
+import 'package:enum_app/unavailable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 
 void main() {
   // add these lines
@@ -44,6 +47,7 @@ class MyHomePage extends StatefulWidget {
   final String lastname;
   final String team;
   final String ephone;
+  final String userRole;
 
   const MyHomePage({
     Key? key,
@@ -57,6 +61,7 @@ class MyHomePage extends StatefulWidget {
     required this.lastname,
     required this.team,
     required this.ephone,
+    required this.userRole,
   }) : super(key: key);
 
   @override
@@ -65,7 +70,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedScreenIndex = 0;
-  List<Widget> _screens() => [
+  List<Widget> _screensEnumerator() => [
         HomePage(
           mail: widget.mail,
           fname: widget.fname,
@@ -77,6 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
           lastname: widget.lastname,
           team: widget.team,
           ephone: widget.ephone,
+          userRole: widget.userRole,
         ),
         Search(
           id: widget.id,
@@ -84,6 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
           lastname: widget.lastname,
           team: widget.team,
           ephone: widget.ephone,
+          userRole: widget.userRole,
         ),
         Profile(
           id: widget.id,
@@ -92,6 +99,40 @@ class _MyHomePageState extends State<MyHomePage> {
           team: widget.team,
           ephone: widget.ephone,
         ),
+        const Unavailable()
+      ];
+
+  List<Widget> _screensSupervisor() => [
+        HomePage(
+          mail: widget.mail,
+          fname: widget.fname,
+          phone: widget.phone,
+          role: widget.role,
+          nin: widget.nin,
+          id: widget.id,
+          firstname: widget.firstname,
+          lastname: widget.lastname,
+          team: widget.team,
+          ephone: widget.ephone,
+          userRole: widget.userRole,
+        ),
+        Search(
+          id: widget.id,
+          firstname: widget.firstname,
+          lastname: widget.lastname,
+          team: widget.team,
+          ephone: widget.ephone,
+          userRole: widget.userRole,
+        ),
+        Profile(
+          id: widget.id,
+          firstname: widget.firstname,
+          lastname: widget.lastname,
+          team: widget.team,
+          ephone: widget.ephone,
+        ),
+        const Unavailable(),
+        const Supervisor()
       ];
 
   void _selectScreen(int index) {
@@ -102,21 +143,43 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> screens = _screens();
+    final List<Widget> screens = widget.userRole == "supervisor"
+        ? _screensSupervisor()
+        : _screensEnumerator();
     return Scaffold(
-      body: screens[_selectedScreenIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedScreenIndex,
-        onTap: _selectScreen,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'HomePage'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.search), label: "Search Agent"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-        ],
-      ),
-    );
+        body: screens[_selectedScreenIndex],
+        bottomNavigationBar:
+            widget.userRole == "supervisor" ? convexS() : convexE());
   }
+
+  Widget convexS() => ConvexAppBar(
+        style: TabStyle.textIn,
+        initialActiveIndex: _selectedScreenIndex,
+        onTap: _selectScreen,
+        height: 40.0,
+        backgroundColor: Colors.green.shade900,
+        items: const [
+          TabItem(icon: Icons.home, title: 'Home'),
+          TabItem(icon: Icons.search, title: 'Search'),
+          TabItem(icon: Icons.person, title: 'Profile'),
+          TabItem(icon: Icons.cancel, title: 'Unavailable'),
+          TabItem(icon: Icons.supervised_user_circle, title: 'Supervisor'),
+        ],
+      );
+
+  Widget convexE() => ConvexAppBar(
+        style: TabStyle.textIn,
+        initialActiveIndex: _selectedScreenIndex,
+        onTap: _selectScreen,
+        height: 40.0,
+        backgroundColor: Colors.green.shade900,
+        items: const [
+          TabItem(icon: Icons.home, title: 'Home'),
+          TabItem(icon: Icons.search, title: 'Search'),
+          TabItem(icon: Icons.person, title: 'Profile'),
+          TabItem(icon: Icons.cancel, title: 'Unavailable'),
+        ],
+      );
 }
 
 MaterialColor colorCustom = const MaterialColor(

@@ -43,6 +43,7 @@ dependencies:
   intl: ^0.18.0
   geolocator: ^9.0.1
   app_settings: ^4.1.8
+  convex_bottom_bar: ^3.2.0
 
 dev_dependencies:
   flutter_test:
