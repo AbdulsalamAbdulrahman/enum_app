@@ -8,17 +8,17 @@ import 'package:flutter/material.dart';
 
 //dynamic textfields
 final List<TextEditingController> floorNoControllers = [];
-final List<TextField> floorNoFields = [];
+final List<TextFormField> floorNoFields = [];
 final List<TextEditingController> shopsperfloorControllers = [];
-final List<TextField> shopsperfloorFields = [];
+final List<TextFormField> shopsperfloorFields = [];
 final List<TextEditingController> rateControllers = [];
 final List<TextField> rateFields = [];
 
 //dynamic textfields 2
 final List<TextEditingController> housetypeControllers = [];
-final List<TextField> housetypeFields = [];
+final List<TextFormField> housetypeFields = [];
 final List<TextEditingController> nohouseControllers = [];
-final List<TextField> nohouseFields = [];
+final List<TextFormField> nohouseFields = [];
 final List<TextEditingController> rateEstateControllers = [];
 final List<TextField> rateEstateFields = [];
 
@@ -95,6 +95,19 @@ Widget textField(
   inputType,
 ) {
   return TextFormField(
+    // validator: validateField,
+    controller: controllerValue,
+    keyboardType: inputType,
+    decoration: decorate(label),
+  );
+}
+
+Widget textFieldFN(
+  controllerValue,
+  String label,
+  inputType,
+) {
+  return TextFormField(
     validator: validateField,
     controller: controllerValue,
     keyboardType: inputType,
@@ -124,6 +137,20 @@ String? validateField(value) {
 
 String? validateD(value) {
   if (value == 'Select Type of Rent') {
+    return "field is required";
+  }
+  return null;
+}
+
+String? validateDD(value) {
+  if (value == 'No. of Floors') {
+    return "field is required";
+  }
+  return null;
+}
+
+String? validateHouse(value) {
+  if (value == 'House Type') {
     return "field is required";
   }
   return null;
@@ -175,7 +202,7 @@ InputDecoration decorate(String label) {
 Widget housesInfo() {
   return Column(
     children: <Widget>[
-      textField(flats, 'No. of flats', TextInputType.number),
+      textFieldFN(flats, 'No. of flats', TextInputType.number),
       const SizedBox(
         height: 20,
       ),
