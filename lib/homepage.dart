@@ -933,11 +933,11 @@ class _HomePageState extends State<HomePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          textField(fullName, "Name of Property Owner", TextInputType.text),
+          textFieldFN(fullName, "Name of Property Owner", TextInputType.text),
           const SizedBox(
             height: 20,
           ),
-          textField(regName, "Registered Property Name", TextInputType.text),
+          textFieldFN(regName, "Registered Property Name", TextInputType.text),
           const SizedBox(
             height: 20,
           ),
@@ -949,7 +949,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          textField(phone, "Phone Number", TextInputType.phone),
+          textFieldP(phone, "Phone Number", TextInputType.phone),
           const SizedBox(
             height: 20,
           ),
@@ -1046,7 +1046,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          textField(agName, "Full Name", TextInputType.text),
+          textFieldFN(agName, "Full Name", TextInputType.text),
           const SizedBox(
             height: 20,
           ),
@@ -1095,7 +1095,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(
             height: 20,
           ),
-          textField(totalshops, 'Total No. of Shops', TextInputType.number),
+          textFieldFN(totalshops, 'Total No. of Shops', TextInputType.number),
           const SizedBox(
             height: 20,
           ),
@@ -1150,7 +1150,7 @@ class _HomePageState extends State<HomePage> {
       key: _formKey[2],
       child: Column(
         children: [
-          textField(units, 'Unit(s)', TextInputType.number),
+          textFieldFN(units, 'Unit(s)', TextInputType.number),
           const SizedBox(
             height: 20,
           ),
@@ -1168,11 +1168,11 @@ class _HomePageState extends State<HomePage> {
       key: _formKey[2],
       child: Column(
         children: [
-          textField(renType, 'Rent Type', TextInputType.text),
+          textFieldFN(renType, 'Rent Type', TextInputType.text),
           const SizedBox(
             height: 20,
           ),
-          textField(units, 'Unit(s)', TextInputType.number),
+          textFieldFN(units, 'Unit(s)', TextInputType.number),
           const SizedBox(
             height: 20,
           ),
@@ -1292,7 +1292,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget dropDownPlaza() {
     return DropdownButtonFormField<String>(
-      // validator: validateD,
+      validator: validateDD,
       decoration: const InputDecoration(
           label: Text('No. of Floors'),
           enabledBorder: OutlineInputBorder(
@@ -1381,7 +1381,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget dropDownHouses() {
     return DropdownButtonFormField<String>(
-      // validator: validateD,
+      validator: validateD,
       decoration: const InputDecoration(
           label: Text('House Type'),
           enabledBorder: OutlineInputBorder(
@@ -1599,7 +1599,7 @@ class _HomePageState extends State<HomePage> {
       key: _formKey[2],
       child: Column(
         children: <Widget>[
-          textField(noofestatecomp, 'Number of Flats', TextInputType.number),
+          textFieldFN(noofestatecomp, 'Number of Flats', TextInputType.number),
           const SizedBox(
             height: 20,
           ),
@@ -1613,11 +1613,11 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               children: [
                 // dropDownHouses(),
-                textField(housetype, 'House Type', TextInputType.text),
+                textFieldFN(housetype, 'House Type', TextInputType.text),
                 const SizedBox(
                   height: 20,
                 ),
-                textField(nohouse, 'Unit(s)', TextInputType.number),
+                textFieldFN(nohouse, 'Unit(s)', TextInputType.number),
                 const SizedBox(
                   height: 20,
                 ),
@@ -1649,7 +1649,7 @@ class _HomePageState extends State<HomePage> {
         final floorNoField = _generateTextField(floorNo, "Floor");
         final shopsperfloorField =
             _generateTextFieldN(shopsperfloor, "Shops On Floor");
-        final rateField = _generateTextFieldN(rate, "Rate");
+        final rateField = _generateTextFieldR(rate, "Rate");
 
         setState(() {
           floorNoControllers.add(floorNo);
@@ -1663,11 +1663,26 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  TextField _generateTextField(TextEditingController controller, String hint) {
-    return TextField(controller: controller, decoration: decorate(hint));
+  TextFormField _generateTextField(
+      TextEditingController controller, String hint) {
+    return TextFormField(
+      validator: validateField,
+      controller: controller,
+      decoration: decorate(hint),
+    );
   }
 
-  TextField _generateTextFieldN(TextEditingController controller, String hint) {
+  TextFormField _generateTextFieldN(
+      TextEditingController controller, String hint) {
+    return TextFormField(
+      validator: validateField,
+      controller: controller,
+      decoration: decorate(hint),
+      keyboardType: TextInputType.number,
+    );
+  }
+
+  TextField _generateTextFieldR(TextEditingController controller, String hint) {
     return TextField(
       controller: controller,
       decoration: decorate(hint),
@@ -1685,7 +1700,7 @@ class _HomePageState extends State<HomePage> {
 
         final housetypeField = _generateTextField2(housetype, "House Type");
         final nohouseField = _generateTextFieldN(nohouse, "Unit(s)");
-        final rateEstateField = _generateTextFieldN(rateEstate, "Rate");
+        final rateEstateField = _generateTextFieldR(rateEstate, "Rate");
 
         setState(() {
           housetypeControllers.add(housetype);
@@ -1699,8 +1714,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  TextField _generateTextField2(TextEditingController controller, String hint) {
-    return TextField(controller: controller, decoration: decorate(hint));
+  TextFormField _generateTextField2(
+      TextEditingController controller, String hint) {
+    return TextFormField(controller: controller, decoration: decorate(hint));
   }
 
   Widget _listView() {
