@@ -24,7 +24,11 @@ class _LoginState extends State<Login> {
   String username = '';
   String password = '';
 
-  String id = '';
+  late String errormsg;
+  late bool error;
+  // String username, password;
+
+  String id = "";
   String firstname = '';
   String lastname = '';
   String team = '';
@@ -41,6 +45,10 @@ class _LoginState extends State<Login> {
 
   @override
   void initState() {
+    username = "";
+    password = "";
+    errormsg = "";
+    error = false;
     checkGps();
     super.initState();
   }
@@ -97,11 +105,11 @@ class _LoginState extends State<Login> {
               height: 50,
               child: Image.asset('assets/kad.jpg'),
             ),
-            Padding(
-              padding: const EdgeInsets.all(10),
+            const Padding(
+              padding: EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: const <Widget>[
+                children: <Widget>[
                   Text(
                     "Enumeration App",
                     style: TextStyle(color: Colors.white, fontSize: 25),
@@ -185,7 +193,7 @@ class _LoginState extends State<Login> {
                                         content: Text('No Internet Connection'),
                                       ));
                                     })
-                                  : userLogin();
+                                  : startLogin();
                             }
                           },
                         ),
@@ -258,72 +266,155 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Future userLogin() async {
+  // Future userLogin() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+
+  //   Uri url = Uri.parse('https://kadirs.withholdingtax.ng/mobile/login.php');
+
+  //   try {
+  //     var data = {
+  //       'username': username,
+  //       'password': password,
+  //       'version': '1.0.0'
+  //     };
+
+  //     var response = await http.post(url, body: json.encode(data));
+
+  //     var jsondata = json.decode(response.body);
+
+  //     if (response.statusCode == 200) {
+  //       if (!mounted) return;
+  //       String id = jsondata["id"];
+  //       String firstname = jsondata["fname"];
+  //       String lastname = jsondata["lname"];
+  //       String team = jsondata["team"];
+  //       String ephone = jsondata["phone"];
+  //       String userRole = jsondata["role"];
+  //       setState(() {
+  //         id = id;
+  //       });
+
+  //       // Navigate to Home Screen
+  //       Navigator.of(context).pushAndRemoveUntil(
+  //           MaterialPageRoute(
+  //             builder: (context) => MyHomePage(
+  //               mail: '',
+  //               phone: '',
+  //               fname: '',
+  //               role: '',
+  //               nin: '',
+  //               id: id,
+  //               firstname: firstname,
+  //               lastname: lastname,
+  //               team: team,
+  //               ephone: ephone,
+  //               userRole: userRole,
+  //             ),
+  //           ),
+  //           (route) => false);
+  //     } else {
+  //       showDialog(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: Text(jsondata),
+  //             actions: <Widget>[
+  //               TextButton(
+  //                 child: const Text("OK"),
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop();
+  //                 },
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     }
+  //   } catch (e) {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   }
+  //   setState(() {
+  //     _isLoading = false;
+  //   });
+  // }
+
+  startLogin() async {
     setState(() {
       _isLoading = true;
     });
-
-    Uri url = Uri.parse('https://kadirs.withholdingtax.ng/mobile/login.php');
+    String apiurl = "https://kadirs.withholdingtax.ng/mobile/login.php";
+    // print(username);
 
     try {
-      var data = {
+      var response = await http.post(Uri.parse(apiurl), body: {
         'username': username,
         'password': password,
-        'version': '1.0.0'
-      };
-
-      var response = await http.post(url, body: json.encode(data));
-
-      var jsondata = json.decode(response.body);
+        'version': '1.0.1'
+      });
 
       if (response.statusCode == 200) {
-        if (!mounted) return;
-        String id = jsondata["id"];
-        String firstname = jsondata["fname"];
-        String lastname = jsondata["lname"];
-        String team = jsondata["team"];
-        String ephone = jsondata["phone"];
-        String userRole = jsondata["role"];
+        var jsondata = json.decode(response.body);
 
-        setState(() {
-          id = id;
-        });
+        if (jsondata["success"]) {
+          setState(() {
+            error = false;
+          });
+          //save the data returned from server
+          //and navigate to home page
+          String id = jsondata["id"];
+          String firstname = jsondata["fname"];
+          String lastname = jsondata["lname"];
+          String team = jsondata["team"];
+          String ephone = jsondata["phone"];
+          String userRole = jsondata["role"];
+          setState(() {
+            id = id;
+          });
 
-        // Navigate to Home Screen
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (context) => MyHomePage(
-                mail: '',
-                phone: '',
-                fname: '',
-                role: '',
-                nin: '',
-                id: id,
-                firstname: firstname,
-                lastname: lastname,
-                team: team,
-                ephone: ephone,
-                userRole: userRole,
-              ),
-            ),
-            (route) => false);
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text(jsondata),
-              actions: <Widget>[
-                TextButton(
-                  child: const Text("OK"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
+          // Navigate to Home Screen
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (context) => MyHomePage(
+                  mail: '',
+                  phone: '',
+                  fname: '',
+                  role: '',
+                  nin: '',
+                  id: id,
+                  firstname: firstname,
+                  lastname: lastname,
+                  team: team,
+                  ephone: ephone,
+                  userRole: userRole,
                 ),
-              ],
-            );
-          },
-        );
+              ),
+              (route) => false);
+        } else if (jsondata["error"]) {
+          setState(() {
+            error = true;
+            errormsg = jsondata["message"];
+          });
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(errormsg),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text("OK"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        }
       }
     } catch (e) {
       setState(() {
